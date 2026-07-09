@@ -1,10 +1,11 @@
 'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
+import { clearUser } from '@/lib/store';
 import type { User } from '@/lib/types';
 import { getInitials } from '@/lib/utils';
-import { LuLayoutDashboard, LuLayoutList, LuPlus, LuUser, LuSun, LuMoon, LuTrash2 } from 'react-icons/lu';
+import { LuLayoutDashboard, LuLayoutList, LuPlus, LuUser, LuSun, LuMoon, LuTrash2, LuLogOut } from 'react-icons/lu';
 import { useTheme } from '@/components/ThemeProvider';
 
 const NAV = [
@@ -17,9 +18,15 @@ const NAV = [
 
 export default function Sidebar({ user }: { user: User }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  const handleLogout = () => {
+    clearUser();
+    router.replace('/login');
+  };
 
   return (
     <aside style={{
@@ -118,6 +125,28 @@ export default function Sidebar({ user }: { user: User }) {
         >
           <span style={{ fontSize: '12px', fontWeight: '500', letterSpacing: '0.02em' }}>Appearance</span>
           {mounted && (theme === 'dark' ? <LuMoon size={16} /> : <LuSun size={16} />)}
+        </button>
+
+        {/* Logout */}
+        <button 
+          onClick={handleLogout}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '10px 12px', borderRadius: '10px',
+            border: '1px solid transparent', background: 'transparent',
+            cursor: 'pointer', transition: 'all 0.2s', color: 'var(--text-secondary)',
+          }}
+          onMouseEnter={e => {
+            (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface-hover)';
+            (e.currentTarget as HTMLElement).style.color = '#ef4444';
+          }}
+          onMouseLeave={e => {
+            (e.currentTarget as HTMLElement).style.background = 'transparent';
+            (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)';
+          }}
+        >
+          <span style={{ fontSize: '12px', fontWeight: '500', letterSpacing: '0.02em' }}>Logout</span>
+          <LuLogOut size={16} />
         </button>
 
         {/* User Card */}
