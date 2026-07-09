@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import type { TodoItem } from '@/lib/types';
 import { generateId } from '@/lib/utils';
-import { LuTrash2, LuCheck, LuChevronDown, LuChevronUp, LuCalendar } from 'react-icons/lu';
+import { LuTrash2, LuCheck, LuChevronDown, LuChevronUp, LuCalendar, LuPlus } from 'react-icons/lu';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import LiveCountdown from '@/components/LiveCountdown';
@@ -221,34 +221,42 @@ export default function TodoItemList({ items, onChange }: Props) {
 
       {/* Add row */}
       <div style={{
-        display: 'flex', alignItems: 'center', gap: '16px',
-        padding: '14px 24px',
+        display: 'flex', 
+        gap: '12px',
+        padding: '16px 24px',
+        background: 'var(--bg-surface-hover)',
         borderTop: items.length > 0 ? '1px solid var(--border-subtle)' : 'none',
       }}>
-        <div style={{
-          width: '18px', height: '18px', borderRadius: '4px', flexShrink: 0,
-          border: '1px dashed var(--border-strong)',
-        }} />
         <input
           value={newText}
           onChange={e => setNewText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && add()}
-          placeholder="Add a new task..."
+          placeholder="Write a task title..."
+          className="luxury-input"
           style={{
-            flex: 1, background: 'transparent', border: 'none', outline: 'none',
-            color: 'var(--text-primary)', fontSize: '14px',
+            flex: 1,
+            fontSize: '14px',
+            padding: '10px 14px',
           }}
         />
-        {newText.trim() && (
-          <button
-            type="button"
-            onClick={add}
-            className="luxury-button-secondary"
-            style={{ padding: '6px 12px', fontSize: '12px' }}
-          >
-            Add
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={add}
+          disabled={!newText.trim()}
+          className="luxury-button-primary"
+          style={{ 
+            padding: '0 16px', 
+            fontSize: '13px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '6px',
+            height: '42px',
+            opacity: newText.trim() ? 1 : 0.5,
+            cursor: newText.trim() ? 'pointer' : 'not-allowed'
+          }}
+        >
+          Add Task <LuPlus size={16} />
+        </button>
       </div>
     </div>
   );
