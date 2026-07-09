@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
 import { LuBold, LuItalic, LuHeading2, LuList, LuCode, LuQuote } from 'react-icons/lu';
 
-interface Props { value: string; onChange: (val: string) => void; minHeight?: number; }
+interface Props { initialValue: string; onChange: (val: string) => void; minHeight?: number; }
 
 const TOOLBAR = [
   { icon: <LuBold size={14} />, title: 'Bold',   insert: '**bold**' },
@@ -14,16 +14,46 @@ const TOOLBAR = [
   { icon: <LuQuote size={14} />, title: 'Quote',  insert: '\n> '    },
 ];
 
-export default function MarkdownEditor({ value, onChange, minHeight = 200 }: Props) {
+export default function MarkdownEditor({ initialValue, onChange, minHeight = 200 }: Props) {
   const [view, setView] = useState<'write' | 'preview'>('write');
+  const [draftValue, setDraftValue] = useState(initialValue);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const updateTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (view === 'write' && textareaRef.current) {
+    if (view !== 'write') return;
+    if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${Math.max(textareaRef.current.scrollHeight, minHeight)}px`;
     }
-  }, [value, view, minHeight]);
+  }, [draftValue, view, minHeight]);
+
+  const queueChange = (nextValue: string) => {
+    setDraftValue(nextValue);
+
+    if (updateTimerRef.current) {
+      window.clearTimeout(updateTimerRef.current);
+    }
+
+    updateTimerRef.current = window.setTimeout(() => {
+      onChange(nextValue);
+    }, 350);
+  };
+
+  const flushChange = (nextValue: string) => {
+    if (updateTimerRef.current) {
+      window.clearTimeout(updateTimerRef.current);
+    }
+    onChange(nextValue);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (updateTimerRef.current) {
+        window.clearTimeout(updateTimerRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div style={{
@@ -57,7 +87,7 @@ export default function MarkdownEditor({ value, onChange, minHeight = 200 }: Pro
         {TOOLBAR.map((btn, idx) => (
           <button
             key={idx} type="button" title={btn.title}
-            onClick={() => onChange(value + btn.insert)}
+            onClick={() => flushChange(draftValue + btn.insert)}
             style={{
               width: '28px', height: '28px', borderRadius: '6px',
               border: 'none', background: 'transparent',
@@ -82,8 +112,8 @@ export default function MarkdownEditor({ value, onChange, minHeight = 200 }: Pro
       {view === 'write' ? (
         <textarea
           ref={textareaRef}
-          value={value}
-          onChange={e => onChange(e.target.value)}
+          value={draftValue}
+          onChange={e => queueChange(e.target.value)}
           placeholder="Add a description... (Markdown supported)"
           style={{
             width: '100%', minHeight: `${minHeight}px`,
@@ -95,8 +125,8 @@ export default function MarkdownEditor({ value, onChange, minHeight = 200 }: Pro
         />
       ) : (
         <div style={{ padding: '20px', minHeight: `${minHeight}px` }}>
-          {value
-            ? <MarkdownRenderer content={value} />
+          {draftValue
+            ? <MarkdownRenderer content={draftValue} />
             : <p style={{ color: 'var(--text-tertiary)', fontSize: '14px', fontStyle: 'italic' }}>Nothing to preview.</p>
           }
         </div>

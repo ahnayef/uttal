@@ -149,7 +149,7 @@ export default function TodoItemList({ items, onChange }: Props) {
                   e.stopPropagation();
                   const input = e.currentTarget.querySelector('input');
                   if (input && 'showPicker' in input) {
-                    try { input.showPicker(); } catch (err) {}
+                    try { input.showPicker(); } catch {}
                   }
                 }}
               >
@@ -220,7 +220,7 @@ export default function TodoItemList({ items, onChange }: Props) {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
                         <MarkdownEditor 
-                          value={item.description || ''} 
+                          initialValue={item.description || ''} 
                           onChange={val => updateItem(item.id, { description: val })} 
                           minHeight={80} 
                         />
