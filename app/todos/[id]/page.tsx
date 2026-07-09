@@ -126,20 +126,16 @@ export default function TodoDetailPage() {
       {/* Prominent Progress Bar Card */}
       {todo.items.length > 0 && (
         <div style={{ 
-          marginBottom: '24px', 
-          background: 'var(--bg-surface)', 
-          padding: '16px 20px', 
-          borderRadius: '12px', 
-          border: '1px solid var(--border-subtle)',
-          boxShadow: 'var(--shadow-sm)'
+          marginBottom: '20px', 
+          padding: '0 4px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-            <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Completion Progress</span>
-            <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+            <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)' }}>Progress</span>
+            <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-primary)' }}>
               {todo.items.filter(it => it.completed).length} of {todo.items.length} tasks ({Math.round((todo.items.filter(it => it.completed).length / todo.items.length) * 100)}%)
             </span>
           </div>
-          <div style={{ width: '100%', height: '6px', background: 'var(--border-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
+          <div style={{ width: '100%', height: '4px', background: 'var(--border-subtle)', borderRadius: '2px', overflow: 'hidden' }}>
             <div 
               style={{ 
                 width: `${Math.round((todo.items.filter(it => it.completed).length / todo.items.length) * 100)}%`, 

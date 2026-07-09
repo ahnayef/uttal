@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import type { TodoItem } from '@/lib/types';
 import { generateId } from '@/lib/utils';
-import { LuTrash2, LuCheck, LuChevronDown, LuChevronUp, LuCalendar, LuPlus } from 'react-icons/lu';
+import { LuTrash2, LuCheck, LuChevronDown, LuChevronUp, LuCalendar, LuPlus, LuPencil } from 'react-icons/lu';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import LiveCountdown from '@/components/LiveCountdown';
@@ -16,7 +16,8 @@ export default function TodoItemList({ items, onChange }: Props) {
   const [newText, setNewText]     = useState('');
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [editingDescId, setEditingDescId] = useState<string | null>(null);
+  const [editingDescId, setEditingDescId]   = useState<string | null>(null);
+  const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const toggle = (id: string) =>
@@ -93,11 +94,51 @@ export default function TodoItemList({ items, onChange }: Props) {
             </button>
 
             {/* Text */}
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-              <span
-                style={{ fontSize: '14px', color: item.completed ? 'var(--text-secondary)' : 'var(--text-primary)', textDecoration: item.completed ? 'line-through' : 'none', transition: 'all 0.2s' }}>
-                {item.text}
-              </span>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {editingTitleId === item.id ? (
+                <input
+                  value={item.text}
+                  onChange={e => updateItem(item.id, { text: e.target.value })}
+                  onBlur={() => setEditingTitleId(null)}
+                  onKeyDown={e => e.key === 'Enter' && setEditingTitleId(null)}
+                  onClick={e => e.stopPropagation()}
+                  autoFocus
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: '1px solid var(--text-primary)',
+                    color: 'var(--text-primary)',
+                    fontSize: '14px',
+                    outline: 'none',
+                    width: '100%',
+                    padding: '2px 0'
+                  }}
+                />
+              ) : (
+                <>
+                  <span
+                    style={{ fontSize: '14px', color: item.completed ? 'var(--text-secondary)' : 'var(--text-primary)', textDecoration: item.completed ? 'line-through' : 'none', transition: 'all 0.2s' }}>
+                    {item.text}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingTitleId(item.id);
+                    }}
+                    style={{
+                      background: 'transparent', border: 'none', cursor: 'pointer',
+                      padding: '4px', display: 'flex', alignItems: 'center',
+                      color: 'var(--text-tertiary)', opacity: hoveredId === item.id ? 0.7 : 0,
+                      transition: 'opacity 0.2s'
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-tertiary)'; }}
+                  >
+                    <LuPencil size={12} />
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Countdown / Deadline Overlay */}
