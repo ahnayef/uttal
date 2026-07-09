@@ -1,0 +1,184 @@
+'use client';
+import { useState, useEffect } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { getTodoById, saveTodo, deleteTodo, getUser } from '@/lib/store';
+import type { Todo, TodoItem, User } from '@/lib/types';
+import TodoItemList from '@/components/TodoItemList';
+import MarkdownEditor from '@/components/MarkdownEditor';
+import MarkdownRenderer from '@/components/MarkdownRenderer';
+import ShareModal from '@/components/ShareModal';
+import { LuShare, LuTrash2, LuSettings2, LuCheck, LuAlignLeft, LuCalendar } from 'react-icons/lu';
+
+export default function TodoDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  
+  const [todo, setTodo] = useState<Todo | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  
+  // Editing states
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editTitleVal, setEditTitleVal]     = useState('');
+  
+  const [activeTab, setActiveTab] = useState<'tasks' | 'description'>('tasks');
+  const [showShare, setShowShare] = useState(false);
+
+  useEffect(() => {
+    setUser(getUser());
+    let id = params.id;
+    if (id instanceof Promise) {
+      id.then(resolvedId => {
+        if (typeof resolvedId === 'string') load(resolvedId);
+      });
+    } else if (typeof id === 'string') {
+      load(id);
+    }
+  }, [params.id]);
+
+  const load = (id: string) => {
+    const t = getTodoById(id);
+    if (!t) { router.replace('/dashboard'); return; }
+    setTodo(t);
+    setEditTitleVal(t.title);
+  };
+
+  if (!todo || !user) return null;
+
+  const update = (updates: Partial<Todo>) => {
+    const updated = { ...todo, ...updates, updatedAt: new Date().toISOString() };
+    saveTodo(updated);
+    setTodo(updated);
+  };
+
+  const handleTitleSubmit = () => {
+    if (editTitleVal.trim() && editTitleVal !== todo.title) {
+      update({ title: editTitleVal.trim() });
+    } else {
+      setEditTitleVal(todo.title);
+    }
+    setIsEditingTitle(false);
+  };
+
+  const handleDelete = () => {
+    if (confirm('Delete this todo permanently? This cannot be undone.')) {
+      deleteTodo(todo.id);
+      router.push('/dashboard');
+    }
+  };
+
+  return (
+    <div className="fade-in" style={{ paddingBottom: '80px', maxWidth: '800px', margin: '0 auto' }}>
+      {/* Header block */}
+      <div style={{ marginBottom: '40px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '20px' }}>
+          
+          <div style={{ flex: 1 }}>
+            {/* Title */}
+            {isEditingTitle ? (
+              <input
+                autoFocus
+                value={editTitleVal}
+                onChange={e => setEditTitleVal(e.target.value)}
+                onBlur={handleTitleSubmit}
+                onKeyDown={e => e.key === 'Enter' && handleTitleSubmit()}
+                className="luxury-input"
+                style={{ fontSize: '28px', fontWeight: '500', padding: '8px 12px', background: 'var(--bg-surface)' }}
+              />
+            ) : (
+              <h1 
+                onClick={() => setIsEditingTitle(true)}
+                style={{ 
+                  fontSize: '32px', fontWeight: '500', color: 'var(--text-primary)', 
+                  margin: '0 0 12px', cursor: 'text', letterSpacing: '-0.02em',
+                  padding: '4px 0', border: '1px solid transparent', borderRadius: '8px',
+                  transition: 'background 0.2s'
+                }}
+                title="Click to edit"
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'var(--bg-surface-hover)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+              >
+                {todo.title}
+              </h1>
+            )}
+
+            {/* Meta info */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px', color: 'var(--text-tertiary)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: todo.visibility === 'public' ? '#4ade80' : todo.visibility === 'shared' ? '#60a5fa' : 'var(--text-tertiary)' }} />
+                <span style={{ textTransform: 'capitalize' }}>{todo.visibility}</span>
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <LuCalendar size={14} />
+                <input
+                  type="date"
+                  value={todo.deadline || ''}
+                  onChange={e => update({ deadline: e.target.value || undefined })}
+                  style={{ 
+                    background: 'transparent', border: 'none', color: 'var(--text-tertiary)', 
+                    fontSize: 'inherit', outline: 'none', cursor: 'pointer', fontFamily: 'inherit'
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button onClick={() => setShowShare(true)} className="luxury-button-secondary">
+              <LuShare size={16} /> Share
+            </button>
+            <button onClick={handleDelete} className="luxury-button-secondary" style={{ color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
+              <LuTrash2 size={16} /> Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div style={{ 
+        display: 'flex', gap: '8px', marginBottom: '24px', 
+        borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' 
+      }}>
+        {[
+          { id: 'tasks', label: 'Tasks', icon: <LuCheck size={16} /> },
+          { id: 'description', label: 'Details', icon: <LuAlignLeft size={16} /> },
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            style={{
+              padding: '10px 20px', borderRadius: '10px', border: 'none',
+              background: activeTab === tab.id ? 'var(--text-primary)' : 'transparent',
+              color: activeTab === tab.id ? 'var(--bg-main)' : 'var(--text-secondary)',
+              fontSize: '14px', fontWeight: activeTab === tab.id ? '500' : '500',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => { if(activeTab !== tab.id) (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; }}
+            onMouseLeave={e => { if(activeTab !== tab.id) (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)'; }}
+          >
+            {tab.icon} {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Content Area */}
+      <div className="luxury-card" style={{ padding: 0, overflow: 'hidden' }}>
+        {activeTab === 'tasks' ? (
+          <TodoItemList items={todo.items} onChange={items => update({ items })} />
+        ) : (
+          <MarkdownEditor 
+            value={todo.description} 
+            onChange={description => update({ description })} 
+            minHeight={300} 
+          />
+        )}
+      </div>
+
+      {showShare && (
+        <ShareModal todo={todo} onUpdate={update} onClose={() => setShowShare(false)} />
+      )}
+    </div>
+  );
+}

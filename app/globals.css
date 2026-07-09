@@ -1,6 +1,197 @@
 @import "tailwindcss";
 
+@theme {
+  --font-family-sans: var(--font-inter), 'Inter', -apple-system, sans-serif;
+}
+
+:root {
+  /* LIGHT MODE (Pristine Soft White) */
+  --bg-main: #f8f9fa;
+  --bg-surface: rgba(255, 255, 255, 0.6);
+  --bg-surface-hover: rgba(0, 0, 0, 0.03);
+  --bg-surface-elevated: rgba(255, 255, 255, 0.8);
+  --bg-overlay: rgba(255, 255, 255, 0.7);
+  
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --text-tertiary: #9ca3af;
+  
+  --accent-cyan: #52525b; /* Replaced blue with posh zinc/silver */
+  --accent-cyan-subtle: rgba(82, 82, 91, 0.1);
+  --accent-primary: #111827;
+  --accent-primary-text: #ffffff;
+  
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
+  --shadow-lg: 0 24px 48px rgba(0,0,0,0.08);
+}
+
+.dark {
+  /* DARK MODE (Matte Slate / Cyan Accent) */
+  --bg-main: #191a1d;
+  --bg-surface: rgba(20, 21, 24, 0.25); /* More translucent for more glass */
+  --bg-surface-hover: rgba(255, 255, 255, 0.06);
+  --bg-surface-elevated: rgba(30, 31, 35, 0.4);
+  --bg-overlay: rgba(20, 21, 24, 0.85);
+  
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  
+  --accent-cyan: #e4e4e7; /* Posh silver/white instead of blue */
+  --accent-cyan-subtle: rgba(228, 228, 231, 0.1);
+  --accent-primary: transparent;
+  --accent-primary-text: #f3f4f6;
+  
+  --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-md: 0 12px 32px rgba(0,0,0,0.5);
+  --shadow-lg: 0 32px 64px rgba(0,0,0,0.8);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html {
+  height: 100%;
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+}
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+  background-color: var(--bg-main) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+input, textarea, select, button { font-family: inherit; }
+
+/* ── Typography ────────────────────────────────────────────────────────────── */
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.25em;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.heading-primary {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+  line-height: 1.1;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+::selection { background: var(--accent-cyan-subtle); color: var(--accent-cyan); }
+
+/* ── Form Elements ─────────────────────────────────────────────────────────── */
+.luxury-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 15px;
+  outline: none;
+  transition: all 0.3s;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.luxury-input:focus {
+  border-color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+.luxury-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.luxury-button-primary {
+  padding: 12px 32px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 100px; /* Pill shape */
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.luxury-button-primary:hover:not(:disabled) {
+  border-color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+.luxury-button-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.luxury-button-secondary {
+  padding: 10px 24px;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.luxury-button-secondary:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+.luxury-card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 16px; /* Softer, posher corners */
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-top: 1px solid rgba(255, 255, 255, 0.15); /* More prominent glass edge highlight */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15); /* Soft drop shadow for glass effect */
+  transition: all 0.3s ease;
+}
+
+/* ── Markdown ──────────────────────────────────────────────────────────────── */
+.markdown-content { color: var(--text-secondary); line-height: 1.8; font-size: 14.5px; }
+.markdown-content h1, .markdown-content h2, .markdown-content h3 { color: var(--text-primary); font-weight: 600; margin: 1.8em 0 0.8em; letter-spacing: -0.02em; }
+.markdown-content p { margin-bottom: 1.2em; }
+.markdown-content ul, .markdown-content ol { margin: 0 0 1.2em 1.25em; }
+.markdown-content code { background: var(--bg-surface-elevated); color: var(--accent-cyan); padding: 3px 6px; border-radius: 4px; font-size: 0.85em; font-family: 'Geist Mono', monospace; }
+.markdown-content pre { background: var(--bg-surface-elevated); padding: 16px; border-radius: 8px; overflow-x: auto; margin-bottom: 1.2em; }
+.markdown-content pre code { background: none; padding: 0; color: var(--text-primary); }
+.markdown-content a { color: var(--accent-cyan); text-decoration: none; }
+.markdown-content a:hover { text-decoration: underline; }
+
+/* ── Animations ────────────────────────────────────────────────────────────── */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fade-in { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.spinner { animation: spin 0.8s linear infinite; }
