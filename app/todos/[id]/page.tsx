@@ -70,8 +70,8 @@ export default function TodoDetailPage() {
   return (
     <div className="fade-in" style={{ paddingBottom: '80px', maxWidth: '800px', margin: '0 auto' }}>
       {/* Header block */}
-      <div style={{ marginBottom: '40px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '20px' }}>
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
           
           <div style={{ flex: 1 }}>
             {/* Title */}
@@ -83,14 +83,14 @@ export default function TodoDetailPage() {
                 onBlur={handleTitleSubmit}
                 onKeyDown={e => e.key === 'Enter' && handleTitleSubmit()}
                 className="luxury-input"
-                style={{ fontSize: '28px', fontWeight: '500', padding: '8px 12px', background: 'var(--bg-surface)' }}
+                style={{ fontSize: '22px', fontWeight: '500', padding: '6px 12px', background: 'var(--bg-surface)' }}
               />
             ) : (
               <h1 
                 onClick={() => setIsEditingTitle(true)}
                 style={{ 
-                  fontSize: '32px', fontWeight: '500', color: 'var(--text-primary)', 
-                  margin: '0 0 12px', cursor: 'text', letterSpacing: '-0.02em',
+                  fontSize: '24px', fontWeight: '500', color: 'var(--text-primary)', 
+                  margin: '0 0 6px', cursor: 'text', letterSpacing: '-0.02em',
                   padding: '4px 0', border: '1px solid transparent', borderRadius: '8px',
                   transition: 'background 0.2s'
                 }}
@@ -103,7 +103,7 @@ export default function TodoDetailPage() {
             )}
 
             {/* Meta info */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '13px', color: 'var(--text-tertiary)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', fontSize: '13px', color: 'var(--text-tertiary)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: todo.visibility === 'public' ? '#4ade80' : todo.visibility === 'shared' ? '#60a5fa' : 'var(--text-tertiary)' }} />
                 <span style={{ textTransform: 'capitalize' }}>{todo.visibility}</span>
@@ -123,24 +123,54 @@ export default function TodoDetailPage() {
         </div>
       </div>
 
+      {/* Prominent Progress Bar Card */}
+      {todo.items.length > 0 && (
+        <div style={{ 
+          marginBottom: '24px', 
+          background: 'var(--bg-surface)', 
+          padding: '16px 20px', 
+          borderRadius: '12px', 
+          border: '1px solid var(--border-subtle)',
+          boxShadow: 'var(--shadow-sm)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Completion Progress</span>
+            <span style={{ fontSize: '13px', fontWeight: '500', color: 'var(--text-primary)' }}>
+              {todo.items.filter(it => it.completed).length} of {todo.items.length} tasks ({Math.round((todo.items.filter(it => it.completed).length / todo.items.length) * 100)}%)
+            </span>
+          </div>
+          <div style={{ width: '100%', height: '6px', background: 'var(--border-subtle)', borderRadius: '3px', overflow: 'hidden' }}>
+            <div 
+              style={{ 
+                width: `${Math.round((todo.items.filter(it => it.completed).length / todo.items.length) * 100)}%`, 
+                height: '100%', 
+                background: 'var(--text-primary)', 
+                transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 
+              }} 
+            />
+          </div>
+        </div>
+      )}
+
       {/* Tabs */}
       <div style={{ 
-        display: 'flex', gap: '8px', marginBottom: '24px', 
-        borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px' 
+        display: 'flex', gap: '6px', marginBottom: '16px', 
+        borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px' 
       }}>
         {[
-          { id: 'tasks', label: 'Tasks', icon: <LuCheck size={16} /> },
-          { id: 'description', label: 'Details', icon: <LuAlignLeft size={16} /> },
+          { id: 'tasks', label: 'Tasks', icon: <LuCheck size={14} /> },
+          { id: 'description', label: 'Details', icon: <LuAlignLeft size={14} /> },
         ].map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             style={{
-              padding: '10px 20px', borderRadius: '10px', border: 'none',
-              background: activeTab === tab.id ? 'var(--text-primary)' : 'transparent',
-              color: activeTab === tab.id ? 'var(--bg-main)' : 'var(--text-secondary)',
-              fontSize: '14px', fontWeight: activeTab === tab.id ? '500' : '500',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '6px 12px', borderRadius: '6px', 
+              border: `1px solid ${activeTab === tab.id ? 'var(--border-subtle)' : 'transparent'}`,
+              background: activeTab === tab.id ? 'var(--bg-surface-elevated)' : 'transparent',
+              color: activeTab === tab.id ? 'var(--text-primary)' : 'var(--text-secondary)',
+              fontSize: '13px', fontWeight: '500',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
               transition: 'all 0.2s',
             }}
             onMouseEnter={e => { if(activeTab !== tab.id) (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; }}
