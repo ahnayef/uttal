@@ -19,7 +19,7 @@ const NAV = [
   { label: 'Profile',  href: '/dashboard/profile', exact: false, icon: <LuUser size={18} /> },
 ];
 
-export default function Sidebar({ user }: { user: User }) {
+export default function Sidebar({ user, open = false, onClose }: { user: User; open?: boolean; onClose?: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
@@ -38,7 +38,7 @@ export default function Sidebar({ user }: { user: User }) {
   return (
     <aside style={{
       width: '260px',
-      height: '100vh',
+      height: '100dvh',
       background: 'var(--bg-surface)',
       borderRight: '1px solid var(--border-subtle)',
       display: 'flex',
@@ -46,9 +46,14 @@ export default function Sidebar({ user }: { user: User }) {
       position: 'fixed',
       top: 0, left: 0,
       zIndex: 100,
-    }}>
+    }} className="dashboard-sidebar" data-open={open ? 'true' : 'false'}>
       {/* Logo */}
       <div style={{ padding: '36px 28px 24px' }}>
+        <div className="dashboard-sidebar-close" style={{ display: 'none', justifyContent: 'flex-end', marginBottom: '16px' }}>
+          <button type="button" onClick={onClose} className="luxury-button-secondary" style={{ padding: '8px 14px' }}>
+            Close
+          </button>
+        </div>
         <Link href="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             width: '28px', height: '28px',

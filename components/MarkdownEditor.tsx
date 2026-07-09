@@ -67,8 +67,9 @@ export default function MarkdownEditor({ initialValue, onChange, minHeight = 200
         display: 'flex', alignItems: 'center', gap: '8px',
         padding: '10px 16px', background: 'var(--bg-surface)',
         borderBottom: '1px solid var(--border-subtle)',
+        flexWrap: 'wrap',
       }}>
-        <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-surface-elevated)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', gap: '4px', background: 'var(--bg-surface-elevated)', padding: '4px', borderRadius: '8px', border: '1px solid var(--border-subtle)', flexWrap: 'wrap' }}>
           {(['write', 'preview'] as const).map(v => (
             <button key={v} type="button" onClick={() => setView(v)} style={{
               padding: '4px 14px', borderRadius: '6px', border: 'none',
@@ -82,7 +83,7 @@ export default function MarkdownEditor({ initialValue, onChange, minHeight = 200
           ))}
         </div>
         
-        <div style={{ width: '1px', height: '16px', background: 'var(--border-strong)', margin: '0 8px' }} />
+        <div className="markdown-editor-divider" style={{ width: '1px', height: '16px', background: 'var(--border-strong)', margin: '0 8px' }} />
         
         {TOOLBAR.map((btn, idx) => (
           <button

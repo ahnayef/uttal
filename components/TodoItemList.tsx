@@ -72,6 +72,7 @@ export default function TodoItemList({ items, onChange }: Props) {
             style={{
               display: 'flex', alignItems: 'center', gap: '16px',
               padding: '14px 24px',
+                flexWrap: 'wrap',
               background: hoveredId === item.id || expandedId === item.id ? 'var(--bg-surface-hover)' : 'transparent',
               transition: 'background 0.2s',
               cursor: 'pointer',
@@ -94,7 +95,7 @@ export default function TodoItemList({ items, onChange }: Props) {
             </button>
 
             {/* Text */}
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
               {editingTitleId === item.id ? (
                 <input
                   value={item.text}
@@ -144,7 +145,7 @@ export default function TodoItemList({ items, onChange }: Props) {
             {/* Countdown / Deadline Overlay */}
             {!item.completed && (
               <div 
-                style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '24px', cursor: 'pointer' }}
+                style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '24px', cursor: 'pointer', marginLeft: 'auto' }}
                 onClick={(e) => {
                   e.stopPropagation();
                   const input = e.currentTarget.querySelector('input');
@@ -174,7 +175,7 @@ export default function TodoItemList({ items, onChange }: Props) {
             )}
 
             {/* Actions */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginLeft: 'auto' }}>
               <button
                 type="button"
                 onClick={() => {
@@ -267,6 +268,7 @@ export default function TodoItemList({ items, onChange }: Props) {
         padding: '16px 24px',
         background: 'var(--bg-surface-hover)',
         borderTop: items.length > 0 ? '1px solid var(--border-subtle)' : 'none',
+        flexWrap: 'wrap',
       }}>
         <input
           value={newText}
@@ -293,7 +295,9 @@ export default function TodoItemList({ items, onChange }: Props) {
             gap: '6px',
             height: '42px',
             opacity: newText.trim() ? 1 : 0.5,
-            cursor: newText.trim() ? 'pointer' : 'not-allowed'
+            cursor: newText.trim() ? 'pointer' : 'not-allowed',
+            width: '100%',
+            maxWidth: '160px',
           }}
         >
           Add Task <LuPlus size={16} />

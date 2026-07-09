@@ -29,9 +29,9 @@ export default function DashboardPage() {
   const overdue = todos.filter(t => t.items.some(i => !i.completed && i.deadline && getDeadlineStatus(i.deadline) === 'overdue')).length;
 
   return (
-    <div className="fade-in" style={{ paddingBottom: '80px', maxWidth: '1000px', margin: '0 auto' }}>
+    <div className="fade-in dashboard-page" style={{ paddingBottom: '80px', maxWidth: '1000px', margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '64px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '20px', flexWrap: 'wrap', marginBottom: '64px' }}>
         <div>
           <span className="section-label">Overview</span>
           <h1 className="heading-primary">
@@ -73,7 +73,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Grid */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '32px' }}>
         <h2 style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: 0 }}>Your Todos</h2>
         {todos.length > 0 && (
           <Link href="/todos" style={{ fontSize: '13px', color: 'var(--text-secondary)', textDecoration: 'none', transition: 'color 0.2s' }}

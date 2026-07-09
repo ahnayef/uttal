@@ -51,7 +51,7 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="fade-in" style={{ paddingBottom: '80px', maxWidth: '600px', margin: '0 auto' }}>
+    <div className="fade-in dashboard-page" style={{ paddingBottom: '80px', maxWidth: '600px', margin: '0 auto' }}>
       <div style={{ marginBottom: '56px' }}>
         <span className="section-label">Account</span>
         <h1 className="heading-primary">
@@ -101,7 +101,7 @@ export default function ProfilePage() {
           />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '24px', borderTop: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginTop: '16px', paddingTop: '24px', borderTop: '1px solid var(--border-subtle)' }}>
           <button type="button" onClick={handleLogout} className="luxury-button-secondary" style={{ color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }}>
             <LuLogOut size={16} /> Logout / Clear Data
           </button>

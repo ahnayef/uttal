@@ -68,7 +68,7 @@ export default function AllTodosPage() {
   });
 
   return (
-    <div className="fade-in" style={{ paddingBottom: '80px', maxWidth: '1000px', margin: '0 auto' }}>
+    <div className="fade-in dashboard-page" style={{ paddingBottom: '80px', maxWidth: '1000px', margin: '0 auto' }}>
       {/* Back button & Header */}
       <div style={{ marginBottom: '32px' }}>
         <Link href="/dashboard" style={{ 
@@ -81,7 +81,7 @@ export default function AllTodosPage() {
           <LuChevronLeft size={16} /> Back to Dashboard
         </Link>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '16px', flexWrap: 'wrap' }}>
           <div>
             <h1 className="heading-primary" style={{ margin: '0 0 6px' }}>All Todos</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '14px', margin: 0 }}>

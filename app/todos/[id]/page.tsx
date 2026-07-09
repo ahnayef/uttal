@@ -100,10 +100,10 @@ export default function TodoDetailPage() {
   };
 
   return (
-    <div className="fade-in" style={{ paddingBottom: '80px', maxWidth: '800px', margin: '0 auto' }}>
+    <div className="fade-in dashboard-page" style={{ paddingBottom: '80px', maxWidth: '800px', margin: '0 auto' }}>
       {/* Header block */}
       <div style={{ marginBottom: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
           
           <div style={{ flex: 1 }}>
             {/* Title */}
@@ -144,7 +144,7 @@ export default function TodoDetailPage() {
           </div>
 
           {/* Actions */}
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
             <button onClick={() => setShowShare(true)} className="luxury-button-secondary">
               <LuShare size={16} /> Share
             </button>

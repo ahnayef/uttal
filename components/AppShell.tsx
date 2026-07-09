@@ -9,6 +9,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const u = getUser();
@@ -34,17 +35,41 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div style={{ display: 'flex', background: 'var(--bg-main)', minHeight: '100vh', color: 'var(--text-primary)' }}>
-      <Sidebar user={user} />
+    <div style={{ display: 'flex', background: 'var(--bg-main)', minHeight: '100dvh', color: 'var(--text-primary)' }}>
+      <Sidebar user={user} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      {sidebarOpen && (
+        <button
+          type="button"
+          aria-label="Close navigation"
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            border: 'none',
+            background: 'rgba(0, 0, 0, 0.32)',
+            zIndex: 90,
+          }}
+        />
+      )}
       <main style={{
         flex: 1,
         marginLeft: '260px', /* Increased sidebar width slightly for luxury feel */
-        minHeight: '100vh',
+        minHeight: '100dvh',
         padding: '56px 40px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center', /* Center horizontally */
-      }}>
+      }} className="dashboard-main">
+        <div style={{ width: '100%', maxWidth: '860px', marginBottom: '20px' }} className="dashboard-mobile-header">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="luxury-button-secondary"
+            style={{ padding: '8px 14px' }}
+          >
+            Menu
+          </button>
+        </div>
         <div style={{
           width: '100%',
           maxWidth: '860px', /* Constrain width and center */

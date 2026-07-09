@@ -46,7 +46,7 @@ export default function NewTodoPage() {
   };
 
   return (
-    <div className="fade-in" style={{ maxWidth: '720px', margin: '0 auto', paddingBottom: '80px' }}>
+    <div className="fade-in dashboard-page" style={{ maxWidth: '720px', margin: '0 auto', paddingBottom: '80px' }}>
       <div style={{ marginBottom: '56px' }}>
         <span className="section-label">Create</span>
         <h1 className="heading-primary">
@@ -89,7 +89,7 @@ export default function NewTodoPage() {
           />
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '24px', borderTop: '1px solid var(--border-subtle)' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', flexWrap: 'wrap', marginTop: '16px', paddingTop: '24px', borderTop: '1px solid var(--border-subtle)' }}>
           <button type="submit" disabled={!title.trim() || items.length === 0} className="luxury-button-primary">
             Create Todo <LuPlus size={18} />
           </button>
