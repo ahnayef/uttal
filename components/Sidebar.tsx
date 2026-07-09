@@ -3,11 +3,13 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { clearUser } from '@/lib/store';
-import { signOut } from 'next-auth/react';
 import type { User } from '@/lib/types';
 import { getInitials } from '@/lib/utils';
 import { LuLayoutDashboard, LuLayoutList, LuPlus, LuUser, LuSun, LuMoon, LuTrash2, LuLogOut } from 'react-icons/lu';
 import { useTheme } from '@/components/ThemeProvider';
+import { createClient } from '@/utils/supabase/client';
+
+const supabase = createClient();
 
 const NAV = [
   { label: 'Overview', href: '/dashboard', exact: true,  icon: <LuLayoutDashboard size={18} /> },
@@ -22,11 +24,15 @@ export default function Sidebar({ user }: { user: User }) {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   const handleLogout = async () => {
     clearUser();
-    await signOut({ callbackUrl: '/login' });
+    await supabase.auth.signOut();
+    router.replace('/login');
   };
 
   return (

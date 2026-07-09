@@ -4,6 +4,9 @@ import { useRouter } from 'next/navigation';
 import { getUser, saveUser } from '@/lib/store';
 import type { User } from '@/lib/types';
 import { LuSave, LuLogOut, LuUser } from 'react-icons/lu';
+import { createClient } from '@/utils/supabase/client';
+
+const supabase = createClient();
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -16,12 +19,17 @@ export default function ProfilePage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const u = getUser();
-    if (!u) { router.replace('/login'); return; }
-    setUser(u);
-    setName(u.name);
-    setEmail(u.email);
-    setBio(u.bio || '');
+    void (async () => {
+      const u = getUser();
+      if (!u) {
+        router.replace('/login');
+        return;
+      }
+      setUser(u);
+      setName(u.name);
+      setEmail(u.email);
+      setBio(u.bio || '');
+    })();
   }, [router]);
 
   if (!user) return null;
@@ -35,9 +43,11 @@ export default function ProfilePage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('uttal_user');
-    localStorage.removeItem('uttal_todos');
-    router.replace('/login');
+    void (async () => {
+      localStorage.removeItem('uttal_user');
+      await supabase.auth.signOut();
+      router.replace('/login');
+    })();
   };
 
   return (

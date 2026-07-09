@@ -15,12 +15,17 @@ export default function NewTodoPage() {
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const u = getUser();
-    if (!u) { router.replace('/login'); return; }
-    setUser(u);
+    void (async () => {
+      const u = getUser();
+      if (!u) {
+        router.replace('/login');
+        return;
+      }
+      setUser(u);
+    })();
   }, [router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || items.length === 0 || !user) return;
 
@@ -36,7 +41,7 @@ export default function NewTodoPage() {
       updatedAt: new Date().toISOString(),
     };
 
-    saveTodo(newTodo);
+    await saveTodo(newTodo);
     router.push(`/todos/${newTodo.id}`);
   };
 

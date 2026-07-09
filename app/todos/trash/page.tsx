@@ -4,38 +4,48 @@ import Link from 'next/link';
 import { getTrashTodos, getUser, restoreTodo, hardDeleteTodo } from '@/lib/store';
 import type { Todo, User } from '@/lib/types';
 import TodoCard from '@/components/TodoCard';
-import { LuTrash2, LuRotateCcw, LuChevronLeft, LuInfo } from 'react-icons/lu';
+import { LuTrash2, LuChevronLeft, LuInfo } from 'react-icons/lu';
 
 export default function TrashPage() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [user, setUser]   = useState<User | null>(null);
 
-  useEffect(() => {
-    const u = getUser();
-    setUser(u);
-    if (u) loadTrash(u.id);
-  }, []);
-
-  const loadTrash = (userId: string) => {
-    setTodos(getTrashTodos(userId));
+  const loadTrash = async (userId: string) => {
+    setTodos(await getTrashTodos(userId));
   };
 
+  useEffect(() => {
+    void (async () => {
+      const u = getUser();
+      setUser(u);
+      if (u) {
+        await loadTrash(u.id);
+      }
+    })();
+  }, []);
+
   const handleRestore = (id: string) => {
-    restoreTodo(id);
-    if (user) loadTrash(user.id);
+    void (async () => {
+      await restoreTodo(id);
+      if (user) await loadTrash(user.id);
+    })();
   };
 
   const handleHardDelete = (id: string) => {
     if (confirm('Permanently delete this project? This cannot be undone.')) {
-      hardDeleteTodo(id);
-      if (user) loadTrash(user.id);
+      void (async () => {
+        await hardDeleteTodo(id);
+        if (user) await loadTrash(user.id);
+      })();
     }
   };
 
   const handleEmptyTrash = () => {
     if (confirm('Permanently delete ALL items in the trash? This cannot be undone.')) {
-      todos.forEach(t => hardDeleteTodo(t.id));
-      if (user) loadTrash(user.id);
+      void (async () => {
+        await Promise.all(todos.map(t => hardDeleteTodo(t.id)));
+        if (user) await loadTrash(user.id);
+      })();
     }
   };
 

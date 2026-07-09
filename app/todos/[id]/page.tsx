@@ -2,12 +2,12 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getTodoById, saveTodo, deleteTodo, getUser } from '@/lib/store';
-import type { Todo, TodoItem, User } from '@/lib/types';
+import type { Todo, User } from '@/lib/types';
 import TodoItemList from '@/components/TodoItemList';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import ShareModal from '@/components/ShareModal';
-import { LuShare, LuTrash2, LuSettings2, LuCheck, LuAlignLeft, LuCalendar } from 'react-icons/lu';
+import { LuShare, LuTrash2, LuCheck, LuAlignLeft } from 'react-icons/lu';
 
 export default function TodoDetailPage() {
   const params = useParams();
@@ -25,30 +25,34 @@ export default function TodoDetailPage() {
   const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   useEffect(() => {
-    setUser(getUser());
-    let id = params.id;
-    if (id instanceof Promise) {
-      id.then(resolvedId => {
-        if (typeof resolvedId === 'string') load(resolvedId);
-      });
-    } else if (typeof id === 'string') {
-      load(id);
-    }
-  }, [params.id]);
-
-  const load = (id: string) => {
-    const t = getTodoById(id);
-    if (!t) { router.replace('/dashboard'); return; }
-    setTodo(t);
-    setEditTitleVal(t.title);
-  };
+    void (async () => {
+      setUser(getUser());
+      const id = params.id;
+      if (id instanceof Promise) {
+        const resolvedId = await id;
+        if (typeof resolvedId === 'string') {
+          const t = await getTodoById(resolvedId);
+          if (!t) { router.replace('/dashboard'); return; }
+          setTodo(t);
+          setEditTitleVal(t.title);
+        }
+      } else if (typeof id === 'string') {
+        const t = await getTodoById(id);
+        if (!t) { router.replace('/dashboard'); return; }
+        setTodo(t);
+        setEditTitleVal(t.title);
+      }
+    })();
+  }, [params.id, router]);
 
   if (!todo || !user) return null;
 
   const update = (updates: Partial<Todo>) => {
-    const updated = { ...todo, ...updates, updatedAt: new Date().toISOString() };
-    saveTodo(updated);
-    setTodo(updated);
+    void (async () => {
+      const updated = { ...todo, ...updates, updatedAt: new Date().toISOString() };
+      await saveTodo(updated);
+      setTodo(updated);
+    })();
   };
 
   const handleTitleSubmit = () => {
@@ -62,8 +66,10 @@ export default function TodoDetailPage() {
 
   const handleDelete = () => {
     if (confirm('Move this todo to trash? You can restore it later.')) {
-      deleteTodo(todo.id);
-      router.push('/dashboard');
+      void (async () => {
+        await deleteTodo(todo.id);
+        router.push('/dashboard');
+      })();
     }
   };
 
@@ -153,13 +159,13 @@ export default function TodoDetailPage() {
         display: 'flex', gap: '6px', marginBottom: '16px', 
         borderBottom: '1px solid var(--border-subtle)', paddingBottom: '12px' 
       }}>
-        {[
+        {([
           { id: 'tasks', label: 'Tasks', icon: <LuCheck size={14} /> },
           { id: 'description', label: 'Details', icon: <LuAlignLeft size={14} /> },
-        ].map(tab => (
+        ] as const).map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id)}
             style={{
               padding: '6px 12px', borderRadius: '6px', 
               border: `1px solid ${activeTab === tab.id ? 'var(--border-subtle)' : 'transparent'}`,

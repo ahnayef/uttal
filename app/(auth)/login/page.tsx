@@ -1,26 +1,58 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { signIn, useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
+import { createClient } from '@/utils/supabase/client';
+
+const supabase = createClient();
 
 export default function LoginPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const [checkingSession, setCheckingSession] = useState(true);
 
   useEffect(() => {
-    if (status === 'authenticated') {
-      router.replace('/dashboard');
-    }
-  }, [status, router]);
+    let active = true;
 
-  if (status === 'loading') {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!active) return;
+      if (data.session) {
+        router.replace('/dashboard');
+      } else {
+        setCheckingSession(false);
+      }
+    };
+
+    void checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) {
+        router.replace('/dashboard');
+      }
+    });
+
+    return () => {
+      active = false;
+      subscription.unsubscribe();
+    };
+  }, [router]);
+
+  if (checkingSession) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         Loading...
       </div>
     );
   }
+
+  const handleGoogleLogin = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
+  };
 
   return (
     <div style={{
@@ -35,7 +67,9 @@ export default function LoginPage() {
         </div>
         <div className="luxury-card" style={{ textAlign: 'center', padding: '32px' }}>
           <button
-            onClick={() => signIn('google')}
+            onClick={() => {
+              void handleGoogleLogin();
+            }}
             className="luxury-button-primary"
             style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >

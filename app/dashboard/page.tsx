@@ -12,9 +12,13 @@ export default function DashboardPage() {
   const [user, setUser]   = useState<User | null>(null);
 
   useEffect(() => {
-    const u = getUser();
-    setUser(u);
-    if (u) setTodos(getTodos(u.id));
+    void (async () => {
+      const u = getUser();
+      setUser(u);
+      if (u) {
+        setTodos(await getTodos(u.id));
+      }
+    })();
   }, []);
 
   if (!user) return null;
@@ -34,7 +38,7 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '15px', margin: 0 }}>
-            Welcome back, {user.name.split(' ')[0]}. Here's your status.
+            Welcome back, {user.name.split(' ')[0]}. Here&apos;s your status.
           </p>
         </div>
         <Link href="/todos/new" className="luxury-button-primary" style={{ textDecoration: 'none' }}>
@@ -103,8 +107,10 @@ export default function DashboardPage() {
               key={todo.id} 
               todo={todo} 
               onDelete={() => {
-                deleteTodo(todo.id);
-                if (user) setTodos(getTodos(user.id));
+                void (async () => {
+                  await deleteTodo(todo.id);
+                  if (user) setTodos(await getTodos(user.id));
+                })();
               }}
             />
           ))}

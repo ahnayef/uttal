@@ -5,7 +5,7 @@ import { getTodos, getUser, deleteTodo } from '@/lib/store';
 import type { Todo, User } from '@/lib/types';
 import TodoCard from '@/components/TodoCard';
 import { getProgress } from '@/lib/utils';
-import { LuPlus, LuSearch, LuArrowUpDown, LuFilter, LuChevronLeft, LuLayoutList } from 'react-icons/lu';
+import { LuPlus, LuSearch, LuChevronLeft, LuLayoutList } from 'react-icons/lu';
 
 export default function AllTodosPage() {
   const [todos, setTodos] = useState<Todo[]>([]);
@@ -18,9 +18,13 @@ export default function AllTodosPage() {
   const [progress, setProgress]   = useState<'all' | 'completed' | 'ongoing' | 'empty'>('all');
 
   useEffect(() => {
-    const u = getUser();
-    setUser(u);
-    if (u) setTodos(getTodos(u.id));
+    void (async () => {
+      const u = getUser();
+      setUser(u);
+      if (u) {
+        setTodos(await getTodos(u.id));
+      }
+    })();
   }, []);
 
   if (!user) return null;
@@ -98,7 +102,6 @@ export default function AllTodosPage() {
         flexDirection: 'column', 
         gap: '16px' 
       }}>
-        {/* Search Input */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
           <LuSearch size={18} color="var(--text-tertiary)" style={{ position: 'absolute', left: '14px' }} />
           <input
@@ -110,7 +113,6 @@ export default function AllTodosPage() {
           />
         </div>
 
-        {/* Filter controls row */}
         <div style={{ 
           display: 'flex', 
           flexWrap: 'wrap', 
@@ -122,12 +124,11 @@ export default function AllTodosPage() {
           fontSize: '13px'
         }}>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-            {/* Filter by Visibility */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ color: 'var(--text-tertiary)', fontWeight: '500' }}>Visibility:</span>
               <select
                 value={visibility}
-                onChange={e => setVisibility(e.target.value as any)}
+                onChange={e => setVisibility(e.target.value as 'all' | 'private' | 'public' | 'shared')}
                 style={{
                   background: 'var(--bg-surface-elevated)', border: '1px solid var(--border-subtle)',
                   borderRadius: '6px', color: 'var(--text-primary)', padding: '4px 8px',
@@ -141,12 +142,11 @@ export default function AllTodosPage() {
               </select>
             </div>
 
-            {/* Filter by Progress */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span style={{ color: 'var(--text-tertiary)', fontWeight: '500' }}>Status:</span>
               <select
                 value={progress}
-                onChange={e => setProgress(e.target.value as any)}
+                onChange={e => setProgress(e.target.value as 'all' | 'completed' | 'ongoing' | 'empty')}
                 style={{
                   background: 'var(--bg-surface-elevated)', border: '1px solid var(--border-subtle)',
                   borderRadius: '6px', color: 'var(--text-primary)', padding: '4px 8px',
@@ -161,12 +161,11 @@ export default function AllTodosPage() {
             </div>
           </div>
 
-          {/* Sort Option */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ color: 'var(--text-tertiary)', fontWeight: '500' }}>Sort by:</span>
             <select
               value={sortBy}
-              onChange={e => setSortBy(e.target.value as any)}
+              onChange={e => setSortBy(e.target.value as 'updated' | 'created' | 'alpha' | 'tasks')}
               style={{
                 background: 'var(--bg-surface-elevated)', border: '1px solid var(--border-subtle)',
                 borderRadius: '6px', color: 'var(--text-primary)', padding: '4px 8px',
@@ -203,8 +202,10 @@ export default function AllTodosPage() {
               key={todo.id} 
               todo={todo} 
               onDelete={() => {
-                deleteTodo(todo.id);
-                if (user) setTodos(getTodos(user.id));
+                void (async () => {
+                  await deleteTodo(todo.id);
+                  if (user) setTodos(await getTodos(user.id));
+                })();
               }}
             />
           ))}
