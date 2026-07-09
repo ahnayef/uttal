@@ -100,10 +100,35 @@ export default function TodoItemList({ items, onChange }: Props) {
               </span>
             </div>
 
-            {/* Countdown */}
-            {!item.completed && item.deadline && (
-              <div style={{ opacity: 0.7, transform: 'scale(0.95)', transformOrigin: 'right center' }}>
-                <LiveCountdown deadline={item.deadline} />
+            {/* Countdown / Deadline Overlay */}
+            {!item.completed && (
+              <div 
+                style={{ position: 'relative', display: 'flex', alignItems: 'center', height: '24px', cursor: 'pointer' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const input = e.currentTarget.querySelector('input');
+                  if (input && 'showPicker' in input) {
+                    try { input.showPicker(); } catch (err) {}
+                  }
+                }}
+              >
+                {item.deadline ? (
+                  <LiveCountdown deadline={item.deadline} />
+                ) : (
+                  <div style={{ opacity: hoveredId === item.id ? 1 : 0, transition: 'opacity 0.2s', display: 'flex', alignItems: 'center' }}>
+                    <LuCalendar size={14} color="var(--text-tertiary)" />
+                  </div>
+                )}
+                <input
+                  type="date"
+                  value={item.deadline || ''}
+                  onChange={e => updateItem(item.id, { deadline: e.target.value || null })}
+                  style={{
+                    position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%',
+                    pointerEvents: 'none'
+                  }}
+                  title={item.deadline ? "Edit deadline" : "Add deadline"}
+                />
               </div>
             )}
 
@@ -159,13 +184,15 @@ export default function TodoItemList({ items, onChange }: Props) {
                           minHeight={80} 
                         />
                       </div>
-                      <button 
-                        onClick={() => setEditingDescId(null)}
-                        className="luxury-button-secondary"
-                        style={{ alignSelf: 'flex-end', padding: '4px 10px', fontSize: '12px' }}
-                      >
-                        Done
-                      </button>
+                      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '4px' }}>
+                        <button 
+                          onClick={() => setEditingDescId(null)}
+                          className="luxury-button-secondary"
+                          style={{ padding: '4px 12px', fontSize: '12px' }}
+                        >
+                          Done
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div 
@@ -185,21 +212,6 @@ export default function TodoItemList({ items, onChange }: Props) {
                       )}
                     </div>
                   )}
-                </div>
-                <div>
-                  <label className="section-label" style={{ marginBottom: '8px' }}>Deadline</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <LuCalendar size={16} color="var(--text-tertiary)" />
-                    <input
-                      type="date"
-                      value={item.deadline || ''}
-                      onChange={e => updateItem(item.id, { deadline: e.target.value || null })}
-                      style={{
-                        background: 'transparent', border: 'none', color: 'var(--text-secondary)',
-                        fontSize: '13px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit'
-                      }}
-                    />
-                  </div>
                 </div>
               </div>
             </div>
