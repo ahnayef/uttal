@@ -22,7 +22,13 @@ export default function RootLayout({
     <html lang="en" className={inter.variable} style={{ height: '100%' }} suppressHydrationWarning>
       <body style={{ minHeight: '100%' }}>
         <ThemeProvider>
-          {children}
+          <div className="ambient-background">
+            <div className="ambient-orb ambient-orb-1" />
+            <div className="ambient-orb ambient-orb-2" />
+          </div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

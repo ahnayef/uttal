@@ -22,7 +22,8 @@
   --accent-cyan: #52525b; /* Replaced blue with posh zinc/silver */
   --accent-cyan-subtle: rgba(82, 82, 91, 0.1);
   --accent-primary: #111827;
-  --accent-primary-text: #ffffff;
+  --orb-1: rgba(0, 0, 0, 0.12);
+  --orb-2: rgba(0, 0, 0, 0.08);
   
   --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
   --shadow-md: 0 8px 24px rgba(0,0,0,0.06);
@@ -47,7 +48,8 @@
   --accent-cyan: #e4e4e7; /* Posh silver/white instead of blue */
   --accent-cyan-subtle: rgba(228, 228, 231, 0.1);
   --accent-primary: transparent;
-  --accent-primary-text: #f3f4f6;
+  --orb-1: rgba(228, 228, 231, 0.15);
+  --orb-2: rgba(161, 161, 170, 0.12);
   
   --shadow-sm: 0 4px 12px rgba(0,0,0,0.3);
   --shadow-md: 0 12px 32px rgba(0,0,0,0.5);
@@ -195,3 +197,46 @@ input, textarea, select, button { font-family: inherit; }
 @keyframes spin { to { transform: rotate(360deg); } }
 .fade-in { animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .spinner { animation: spin 0.8s linear infinite; }
+
+/* ── Ambient Background ────────────────────────────────────────────────────── */
+.ambient-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: transparent;
+}
+.ambient-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  -webkit-filter: blur(90px);
+  animation: orbFloat 20s infinite ease-in-out alternate;
+}
+.ambient-orb-1 {
+  top: -15%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  min-width: 500px;
+  min-height: 500px;
+  background: var(--orb-1);
+}
+.ambient-orb-2 {
+  bottom: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  min-width: 600px;
+  min-height: 600px;
+  background: var(--orb-2);
+  animation-delay: -10s;
+}
+@keyframes orbFloat {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(60px, 40px) scale(1.05); }
+}
