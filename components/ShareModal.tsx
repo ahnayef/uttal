@@ -1,7 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
-import type { Todo, Visibility } from '@/lib/types';
+import type { Todo } from '@/lib/types';
 import { generateShareUrl } from '@/lib/utils';
 import { LuGlobe, LuLock, LuUsers, LuX, LuCopy, LuCheck, LuChevronLeft } from 'react-icons/lu';
 
@@ -14,16 +14,17 @@ const OPTS = [
 ] as const;
 
 export default function ShareModal({ todo, onUpdate, onClose }: Props) {
-  const [shareUrl, setShareUrl]     = useState('');
   const [emailInput, setEmailInput] = useState('');
   const [copied, setCopied]         = useState(false);
-  const [mounted, setMounted]       = useState(false);
   const [view, setView]             = useState<'main' | 'people'>('main');
 
-  useEffect(() => {
-    setMounted(true);
-    setShareUrl(generateShareUrl(todo));
-  }, [todo]);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+
+  const shareUrl = todo.visibility === 'private' ? '' : generateShareUrl(todo);
 
   const handleCopy = async () => {
     try { await navigator.clipboard.writeText(shareUrl); } catch { /* noop */ }

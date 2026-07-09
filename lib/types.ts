@@ -20,6 +20,7 @@ export type Visibility = 'public' | 'private' | 'shared';
 
 export interface Todo {
   id: string;
+  shareSlug?: string;
   title: string;
   description: string; // markdown content
   items: TodoItem[];

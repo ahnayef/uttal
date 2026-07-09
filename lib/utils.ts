@@ -4,6 +4,17 @@ export function generateId(): string {
   return crypto.randomUUID();
 }
 
+export function generateShortId(length = 10): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(length));
+  let value = '';
+
+  for (const byte of bytes) {
+    value += (byte % 36).toString(36);
+  }
+
+  return value.slice(0, length);
+}
+
 // ── Progress ──────────────────────────────────────────────────────────────────
 
 export function getProgress(items: TodoItem[]): number {
@@ -90,7 +101,7 @@ export function decodeTodo(encoded: string): unknown {
   }
 }
 
-export function generateShareUrl(todo: unknown): string {
+export function generateShareUrl(todo: { shareSlug?: string }): string {
   if (typeof window === 'undefined') return '';
-  return `${window.location.origin}/shared?t=${encodeTodo(todo)}`;
+  return `${window.location.origin}/shared/${todo.shareSlug ?? ''}`;
 }

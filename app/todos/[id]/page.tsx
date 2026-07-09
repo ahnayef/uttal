@@ -8,6 +8,7 @@ import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import ShareModal from '@/components/ShareModal';
 import { LuShare, LuTrash2, LuCheck, LuAlignLeft } from 'react-icons/lu';
+import { generateShortId } from '@/lib/utils';
 
 export default function TodoDetailPage() {
   const params = useParams();
@@ -23,6 +24,7 @@ export default function TodoDetailPage() {
   const [activeTab, setActiveTab] = useState<'tasks' | 'description'>('tasks');
   const [showShare, setShowShare] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [draftDescription, setDraftDescription] = useState('');
 
   useEffect(() => {
     void (async () => {
@@ -31,27 +33,51 @@ export default function TodoDetailPage() {
       if (id instanceof Promise) {
         const resolvedId = await id;
         if (typeof resolvedId === 'string') {
-          const t = await getTodoById(resolvedId);
+          let t = await getTodoById(resolvedId);
           if (!t) { router.replace('/dashboard'); return; }
+          if (t.visibility !== 'private' && !t.shareSlug) {
+            t = await saveTodo({ ...t, shareSlug: generateShortId() });
+          }
           setTodo(t);
           setEditTitleVal(t.title);
+          setDraftDescription(t.description);
         }
       } else if (typeof id === 'string') {
-        const t = await getTodoById(id);
+        let t = await getTodoById(id);
         if (!t) { router.replace('/dashboard'); return; }
+        if (t.visibility !== 'private' && !t.shareSlug) {
+          t = await saveTodo({ ...t, shareSlug: generateShortId() });
+        }
         setTodo(t);
         setEditTitleVal(t.title);
+        setDraftDescription(t.description);
       }
     })();
   }, [params.id, router]);
+
+  useEffect(() => {
+    if (!todo || !isEditingDescription) return;
+    if (draftDescription === todo.description) return;
+
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        const saved = await saveTodo({ ...todo, description: draftDescription, updatedAt: new Date().toISOString() });
+        setTodo(saved);
+      })();
+    }, 500);
+
+    return () => window.clearTimeout(timer);
+  }, [draftDescription, isEditingDescription, todo]);
 
   if (!todo || !user) return null;
 
   const update = (updates: Partial<Todo>) => {
     void (async () => {
-      const updated = { ...todo, ...updates, updatedAt: new Date().toISOString() };
-      await saveTodo(updated);
-      setTodo(updated);
+      const saved = await saveTodo({ ...todo, ...updates, updatedAt: new Date().toISOString() });
+      setTodo(saved);
+      if (typeof updates.description === 'string') {
+        setDraftDescription(updates.description);
+      }
     })();
   };
 
@@ -193,12 +219,24 @@ export default function TodoDetailPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
                   <MarkdownEditor 
-                    value={todo.description} 
-                    onChange={description => update({ description })} 
+                    value={draftDescription} 
+                    onChange={setDraftDescription} 
                     minHeight={200} 
                   />
                 </div>
-                <button onClick={() => setIsEditingDescription(false)} className="luxury-button-secondary" style={{ alignSelf: 'flex-end', padding: '6px 16px' }}>
+                <button
+                  onClick={() => {
+                    void (async () => {
+                      if (draftDescription !== todo.description) {
+                        const saved = await saveTodo({ ...todo, description: draftDescription, updatedAt: new Date().toISOString() });
+                        setTodo(saved);
+                      }
+                      setIsEditingDescription(false);
+                    })();
+                  }}
+                  className="luxury-button-secondary"
+                  style={{ alignSelf: 'flex-end', padding: '6px 16px' }}
+                >
                   Done
                 </button>
               </div>

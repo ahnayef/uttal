@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/client';
+import { generateShortId } from '@/lib/utils';
 import type { User, Todo } from './types';
 
 const USER_KEY = 'uttal_user';
@@ -7,6 +8,7 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 type TodoRow = {
   id: string;
+  share_slug: string | null;
   title: string;
   description: string;
   items: Todo['items'];
@@ -21,6 +23,7 @@ type TodoRow = {
 function toTodo(row: TodoRow): Todo {
   return {
     id: row.id,
+    shareSlug: row.share_slug ?? undefined,
     title: row.title,
     description: row.description ?? '',
     items: row.items ?? [],
@@ -36,6 +39,7 @@ function toTodo(row: TodoRow): Todo {
 function toRow(todo: Todo): TodoRow {
   return {
     id: todo.id,
+    share_slug: todo.shareSlug ?? null,
     title: todo.title,
     description: todo.description ?? '',
     items: todo.items,
@@ -70,6 +74,17 @@ async function fetchTodosForUser(userId: string): Promise<Todo[]> {
   }
 
   return todos.filter(todo => !todo.deletedAt || Date.now() - new Date(todo.deletedAt).getTime() <= THIRTY_DAYS_MS);
+}
+
+async function fetchTodoByColumn(column: 'id' | 'share_slug', value: string): Promise<Todo | null> {
+  const supabase = createClient();
+  const { data, error } = await supabase.from(TODOS_TABLE).select('*').eq(column, value).maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data ? toTodo(data as TodoRow) : null;
 }
 
 // ── User ──────────────────────────────────────────────────────────────────────
@@ -111,25 +126,28 @@ export async function getTrashTodos(userId: string): Promise<Todo[]> {
 }
 
 export async function getTodoById(todoId: string): Promise<Todo | null> {
-  const supabase = createClient();
-  const { data, error } = await supabase.from(TODOS_TABLE).select('*').eq('id', todoId).maybeSingle();
-
-  if (error) {
-    throw error;
-  }
-
-  return data ? toTodo(data as TodoRow) : null;
+  return fetchTodoByColumn('id', todoId);
 }
 
-export async function saveTodo(todo: Todo): Promise<void> {
+export async function getTodoByShareSlug(shareSlug: string): Promise<Todo | null> {
+  return fetchTodoByColumn('share_slug', shareSlug);
+}
+
+export async function saveTodo(todo: Todo): Promise<Todo> {
   const supabase = createClient();
   const timestamp = new Date().toISOString();
-  const payload = toRow({ ...todo, updatedAt: timestamp });
+  const payload = toRow({
+    ...todo,
+    shareSlug: todo.shareSlug ?? generateShortId(),
+    updatedAt: timestamp,
+  });
 
   const { error } = await supabase.from(TODOS_TABLE).upsert(payload);
   if (error) {
     throw error;
   }
+
+  return toTodo(payload);
 }
 
 export async function deleteTodo(todoId: string): Promise<void> {
