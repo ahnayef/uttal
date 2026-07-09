@@ -2,16 +2,16 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveTodo, getUser } from '@/lib/store';
-import type { User } from '@/lib/types';
+import type { User, TodoItem } from '@/lib/types';
 import { generateId } from '@/lib/utils';
-import MarkdownEditor from '@/components/MarkdownEditor';
+import TodoItemList from '@/components/TodoItemList';
 import { LuPlus } from 'react-icons/lu';
 
 export default function NewTodoPage() {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [deadline, setDeadline] = useState('');
+  const [items, setItems] = useState<TodoItem[]>([]);
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
@@ -22,17 +22,16 @@ export default function NewTodoPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !user) return;
+    if (!title.trim() || items.length === 0 || !user) return;
 
     const newTodo = {
       id: generateId(),
       ownerId: user.id,
       title: title.trim(),
       description,
-      deadline: deadline || null,
       visibility: 'private' as const,
       sharedWith: [],
-      items: [],
+      items,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -68,25 +67,25 @@ export default function NewTodoPage() {
         </div>
 
         <div>
-          <label className="section-label">Description (Optional)</label>
-          <div style={{ borderRadius: '12px', overflow: 'hidden' }}>
-            <MarkdownEditor value={description} onChange={setDescription} minHeight={150} />
+          <label className="section-label">Tasks (Required)</label>
+          <div style={{ border: '1px solid var(--border-subtle)', borderRadius: '12px', overflow: 'hidden' }}>
+            <TodoItemList items={items} onChange={setItems} />
           </div>
         </div>
 
         <div>
-          <label className="section-label">Deadline (Optional)</label>
-          <input
-            type="date"
-            value={deadline}
-            onChange={e => setDeadline(e.target.value)}
+          <label className="section-label">Project Notes (Optional)</label>
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
             className="luxury-input"
-            style={{ width: '100%', display: 'block' }}
+            placeholder="Brief description or context..."
+            style={{ minHeight: '80px', resize: 'vertical' }}
           />
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px', paddingTop: '24px', borderTop: '1px solid var(--border-subtle)' }}>
-          <button type="submit" disabled={!title.trim()} className="luxury-button-primary">
+          <button type="submit" disabled={!title.trim() || items.length === 0} className="luxury-button-primary">
             Create Todo <LuPlus size={18} />
           </button>
         </div>

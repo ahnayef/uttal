@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
 import { LuBold, LuItalic, LuHeading2, LuList, LuCode, LuQuote } from 'react-icons/lu';
 
@@ -16,6 +16,14 @@ const TOOLBAR = [
 
 export default function MarkdownEditor({ value, onChange, minHeight = 200 }: Props) {
   const [view, setView] = useState<'write' | 'preview'>('write');
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (view === 'write' && textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.max(textareaRef.current.scrollHeight, minHeight)}px`;
+    }
+  }, [value, view, minHeight]);
 
   return (
     <div style={{
@@ -73,6 +81,7 @@ export default function MarkdownEditor({ value, onChange, minHeight = 200 }: Pro
       {/* Content */}
       {view === 'write' ? (
         <textarea
+          ref={textareaRef}
           value={value}
           onChange={e => onChange(e.target.value)}
           placeholder="Add a description... (Markdown supported)"
@@ -80,7 +89,7 @@ export default function MarkdownEditor({ value, onChange, minHeight = 200 }: Pro
             width: '100%', minHeight: `${minHeight}px`,
             padding: '20px', background: 'transparent', border: 'none',
             color: 'var(--text-primary)', fontSize: '14.5px', lineHeight: '1.8',
-            outline: 'none', resize: 'vertical',
+            outline: 'none', resize: 'none', overflow: 'hidden',
             fontFamily: '"Geist Mono", "Courier New", monospace',
           }}
         />

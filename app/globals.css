@@ -34,7 +34,7 @@
   /* DARK MODE (Matte Slate / Cyan Accent) */
   --bg-main: #191a1d;
   --bg-surface: rgba(20, 21, 24, 0.25); /* More translucent for more glass */
-  --bg-surface-hover: rgba(255, 255, 255, 0.06);
+  --bg-surface-hover: rgba(255, 255, 255, 0.02);
   --bg-surface-elevated: rgba(30, 31, 35, 0.4);
   --bg-overlay: rgba(20, 21, 24, 0.85);
   

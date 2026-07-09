@@ -10,6 +10,8 @@ export interface User {
 export interface TodoItem {
   id: string;
   text: string;
+  description?: string;
+  deadline?: string | null;
   completed: boolean;
   createdAt: string;
 }
@@ -21,7 +23,6 @@ export interface Todo {
   title: string;
   description: string; // markdown content
   items: TodoItem[];
-  deadline: string | null; // ISO date YYYY-MM-DD
   visibility: Visibility;
   sharedWith: string[]; // email addresses
   ownerId: string;

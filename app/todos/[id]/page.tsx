@@ -22,6 +22,7 @@ export default function TodoDetailPage() {
   
   const [activeTab, setActiveTab] = useState<'tasks' | 'description'>('tasks');
   const [showShare, setShowShare] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
 
   useEffect(() => {
     setUser(getUser());
@@ -107,19 +108,6 @@ export default function TodoDetailPage() {
                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: todo.visibility === 'public' ? '#4ade80' : todo.visibility === 'shared' ? '#60a5fa' : 'var(--text-tertiary)' }} />
                 <span style={{ textTransform: 'capitalize' }}>{todo.visibility}</span>
               </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <LuCalendar size={14} />
-                <input
-                  type="date"
-                  value={todo.deadline || ''}
-                  onChange={e => update({ deadline: e.target.value || undefined })}
-                  style={{ 
-                    background: 'transparent', border: 'none', color: 'var(--text-tertiary)', 
-                    fontSize: 'inherit', outline: 'none', cursor: 'pointer', fontFamily: 'inherit'
-                  }}
-                />
-              </div>
             </div>
           </div>
 
@@ -168,11 +156,40 @@ export default function TodoDetailPage() {
         {activeTab === 'tasks' ? (
           <TodoItemList items={todo.items} onChange={items => update({ items })} />
         ) : (
-          <MarkdownEditor 
-            value={todo.description} 
-            onChange={description => update({ description })} 
-            minHeight={300} 
-          />
+          <div style={{ padding: '24px' }}>
+            {isEditingDescription ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
+                  <MarkdownEditor 
+                    value={todo.description} 
+                    onChange={description => update({ description })} 
+                    minHeight={200} 
+                  />
+                </div>
+                <button onClick={() => setIsEditingDescription(false)} className="luxury-button-secondary" style={{ alignSelf: 'flex-end', padding: '6px 16px' }}>
+                  Done
+                </button>
+              </div>
+            ) : (
+              <div 
+                onClick={() => setIsEditingDescription(true)} 
+                style={{ cursor: 'pointer', transition: 'opacity 0.2s', opacity: 0.85 }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.85'; }}
+                title="Click to edit"
+              >
+                {todo.description ? (
+                  <div style={{ color: 'var(--text-secondary)' }}>
+                    <MarkdownRenderer content={todo.description} />
+                  </div>
+                ) : (
+                  <span style={{ color: 'var(--text-tertiary)', borderBottom: '1px dashed var(--border-strong)', padding: '4px 0' }}>
+                    + Add project notes...
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </div>
 

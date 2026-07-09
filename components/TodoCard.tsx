@@ -12,18 +12,8 @@ const VIS_ICON = {
 
 export default function TodoCard({ todo }: { todo: Todo }) {
   const progress = getProgress(todo.items);
-  const dlStatus = getDeadlineStatus(todo.deadline);
   const done     = todo.items.filter(i => i.completed).length;
   const complete = progress === 100 && todo.items.length > 0;
-
-  const dlStyles = {
-    none:     { color: 'var(--text-tertiary)', border: 'transparent' },
-    safe:     { color: 'var(--text-secondary)', border: 'var(--border-subtle)' },
-    warning:  { color: 'var(--text-primary)', border: 'var(--border-strong)' },
-    urgent:   { color: 'var(--accent-primary-text)', border: 'transparent', bg: 'var(--accent-primary)' },
-    critical: { color: 'var(--accent-primary-text)', border: 'transparent', bg: 'var(--accent-primary)' },
-    overdue:  { color: 'var(--accent-primary-text)', border: 'transparent', bg: 'var(--accent-primary)' },
-  }[dlStatus];
 
   return (
     <Link href={`/todos/${todo.id}`} style={{ textDecoration: 'none', display: 'flex', height: '100%' }}>
@@ -93,22 +83,11 @@ export default function TodoCard({ todo }: { todo: Todo }) {
           </div>
         </div>
 
-        {/* Deadline + footer */}
+        {/* Footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)', opacity: 0.8 }}>
-          {todo.deadline ? (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              padding: '4px 10px', borderRadius: '6px',
-              border: `1px solid ${dlStyles.border}`,
-              background: dlStyles.bg || 'transparent',
-              fontSize: '11px', fontWeight: '500', color: dlStyles.color,
-              textTransform: 'uppercase', letterSpacing: '0.04em',
-            }}>
-              {formatDeadline(todo.deadline)}
-            </span>
-          ) : (
-            <span />
-          )}
+          <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+            {todo.items.length} {todo.items.length === 1 ? 'Task' : 'Tasks'}
+          </span>
           <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             {new Date(todo.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
           </span>

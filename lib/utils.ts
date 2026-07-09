@@ -13,7 +13,7 @@ export function getProgress(items: TodoItem[]): number {
 
 // ── Deadline ──────────────────────────────────────────────────────────────────
 
-export function getDeadlineStatus(deadline: string | null): DeadlineStatus {
+export function getDeadlineStatus(deadline?: string | null): DeadlineStatus {
   if (!deadline) return 'none';
   const now = new Date();
   const due = new Date(deadline);
@@ -41,7 +41,7 @@ export function getDeadlineColors(status: DeadlineStatus): DeadlineColors {
   return map[status];
 }
 
-export function formatDeadline(deadline: string | null): string {
+export function formatDeadline(deadline?: string | null): string {
   if (!deadline) return 'No deadline';
   const now = new Date();
   const due = new Date(deadline);

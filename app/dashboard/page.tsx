@@ -22,7 +22,7 @@ export default function DashboardPage() {
   // Stats
   const total = todos.length;
   const completed = todos.filter(t => t.items.length > 0 && getProgress(t.items) === 100).length;
-  const overdue = todos.filter(t => t.deadline && getDeadlineStatus(t.deadline) === 'overdue' && (t.items.length === 0 || getProgress(t.items) < 100)).length;
+  const overdue = todos.filter(t => t.items.some(i => !i.completed && i.deadline && getDeadlineStatus(i.deadline) === 'overdue')).length;
 
   return (
     <div className="fade-in" style={{ paddingBottom: '80px', maxWidth: '1000px', margin: '0 auto' }}>
@@ -50,7 +50,7 @@ export default function DashboardPage() {
         {[
           { label: 'Total Projects', value: total, icon: <LuLayoutList size={20} color="var(--text-secondary)" /> },
           { label: 'Completed', value: completed, icon: <LuCheck size={20} color="var(--text-primary)" /> },
-          { label: 'Overdue', value: overdue, icon: <LuClock size={20} color={overdue > 0 ? '#ef4444' : 'var(--text-secondary)'} /> },
+          { label: 'Tasks Overdue', value: overdue, icon: <LuClock size={20} color={overdue > 0 ? '#ef4444' : 'var(--text-secondary)'} /> },
         ].map((stat, i) => (
           <div key={i} className="luxury-card" style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '24px' }}>
             <div style={{
