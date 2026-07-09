@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getTodos, getUser } from '@/lib/store';
+import { getTodos, getUser, deleteTodo } from '@/lib/store';
 import type { Todo, User } from '@/lib/types';
 import TodoCard from '@/components/TodoCard';
 import { getProgress } from '@/lib/utils';
@@ -199,7 +199,14 @@ export default function AllTodosPage() {
           display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px'
         }}>
           {sortedTodos.map(todo => (
-            <TodoCard key={todo.id} todo={todo} />
+            <TodoCard 
+              key={todo.id} 
+              todo={todo} 
+              onDelete={() => {
+                deleteTodo(todo.id);
+                if (user) setTodos(getTodos(user.id));
+              }}
+            />
           ))}
         </div>
       )}

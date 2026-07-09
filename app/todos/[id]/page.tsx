@@ -61,7 +61,7 @@ export default function TodoDetailPage() {
   };
 
   const handleDelete = () => {
-    if (confirm('Delete this todo permanently? This cannot be undone.')) {
+    if (confirm('Move this todo to trash? You can restore it later.')) {
       deleteTodo(todo.id);
       router.push('/dashboard');
     }

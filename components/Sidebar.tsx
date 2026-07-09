@@ -4,13 +4,14 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import type { User } from '@/lib/types';
 import { getInitials } from '@/lib/utils';
-import { LuLayoutDashboard, LuLayoutList, LuPlus, LuUser, LuSun, LuMoon } from 'react-icons/lu';
+import { LuLayoutDashboard, LuLayoutList, LuPlus, LuUser, LuSun, LuMoon, LuTrash2 } from 'react-icons/lu';
 import { useTheme } from '@/components/ThemeProvider';
 
 const NAV = [
   { label: 'Overview', href: '/dashboard', exact: true,  icon: <LuLayoutDashboard size={18} /> },
   { label: 'All Todos', href: '/todos', exact: true,     icon: <LuLayoutList size={18} /> },
   { label: 'New Todo', href: '/todos/new', exact: false, icon: <LuPlus size={18} /> },
+  { label: 'Trash',     href: '/todos/trash', exact: true, icon: <LuTrash2 size={18} /> },
   { label: 'Profile',  href: '/dashboard/profile', exact: false, icon: <LuUser size={18} /> },
 ];
 

@@ -28,6 +28,7 @@ export interface Todo {
   ownerId: string;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string;
 }
 
 export type DeadlineStatus = 'none' | 'safe' | 'warning' | 'urgent' | 'critical' | 'overdue';
