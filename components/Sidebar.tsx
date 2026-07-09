@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { clearUser } from '@/lib/store';
+import { signOut } from 'next-auth/react';
 import type { User } from '@/lib/types';
 import { getInitials } from '@/lib/utils';
 import { LuLayoutDashboard, LuLayoutList, LuPlus, LuUser, LuSun, LuMoon, LuTrash2, LuLogOut } from 'react-icons/lu';
@@ -23,9 +24,9 @@ export default function Sidebar({ user }: { user: User }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     clearUser();
-    router.replace('/login');
+    await signOut({ callbackUrl: '/login' });
   };
 
   return (

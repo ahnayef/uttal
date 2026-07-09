@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from '@/components/ThemeProvider';
+import NextAuthProvider from '@/components/NextAuthProvider';
+import SessionSync from '@/components/SessionSync';
 
 export default function RootLayout({
   children,
@@ -21,15 +23,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable} style={{ height: '100%' }} suppressHydrationWarning>
       <body style={{ minHeight: '100%' }}>
-        <ThemeProvider>
-          <div className="ambient-background">
-            <div className="ambient-orb ambient-orb-1" />
-            <div className="ambient-orb ambient-orb-2" />
-          </div>
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            {children}
-          </div>
-        </ThemeProvider>
+        <NextAuthProvider>
+          <SessionSync />
+          <ThemeProvider>
+            <div className="ambient-background">
+              <div className="ambient-orb ambient-orb-1" />
+              <div className="ambient-orb ambient-orb-2" />
+            </div>
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              {children}
+            </div>
+          </ThemeProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );
