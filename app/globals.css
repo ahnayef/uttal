@@ -32,11 +32,11 @@
 
 .dark {
   /* DARK MODE (Matte Slate / Cyan Accent) */
-  --bg-main: #191a1d;
-  --bg-surface: rgba(20, 21, 24, 0.25); /* More translucent for more glass */
-  --bg-surface-hover: rgba(255, 255, 255, 0.02);
-  --bg-surface-elevated: rgba(30, 31, 35, 0.4);
-  --bg-overlay: rgba(20, 21, 24, 0.85);
+  --bg-main: #272a30;
+  --bg-surface: rgba(45, 48, 55, 0.35);
+  --bg-surface-hover: rgba(255, 255, 255, 0.06);
+  --bg-surface-elevated: rgba(55, 60, 68, 0.6);
+  --bg-overlay: rgba(35, 38, 44, 0.85);
   
   --border-subtle: rgba(255, 255, 255, 0.06);
   --border-strong: rgba(255, 255, 255, 0.12);
