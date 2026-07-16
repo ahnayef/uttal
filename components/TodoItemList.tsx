@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import type { TodoItem } from '@/lib/types';
 import { generateId, getItemProgress, isItemComplete } from '@/lib/utils';
-import { LuTrash2, LuCheck, LuChevronDown, LuChevronUp, LuCalendar, LuPlus, LuPencil } from 'react-icons/lu';
+import { LuTrash2, LuCheck, LuChevronDown, LuChevronUp, LuCalendar, LuPlus, LuPencil, LuFileText, LuX } from 'react-icons/lu';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import LiveCountdown from '@/components/LiveCountdown';
@@ -18,6 +18,9 @@ export default function TodoItemList({ items, onChange }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editingDescId, setEditingDescId]   = useState<string | null>(null);
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'subtasks' | 'notes'>('subtasks');
+  const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
+  const [hoveredSubtaskId, setHoveredSubtaskId] = useState<string | null>(null);
   const [newSubtaskText, setNewSubtaskText] = useState<Record<string, string>>({});
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -82,6 +85,16 @@ export default function TodoItemList({ items, onChange }: Props) {
         completed: subtasks.length > 0 ? subtasks.every(subtask => subtask.completed) : item.completed,
         subtasks,
       };
+    }));
+  };
+
+  const updateSubtask = (itemId: string, subtaskId: string, text: string) => {
+    onChange(items.map(item => {
+      if (item.id !== itemId) return item;
+      const subtasks = (item.subtasks ?? []).map(subtask =>
+        subtask.id === subtaskId ? { ...subtask, text } : subtask
+      );
+      return { ...item, subtasks };
     }));
   };
 
@@ -299,35 +312,64 @@ export default function TodoItemList({ items, onChange }: Props) {
           {expandedId === item.id && (
             <div style={{ padding: '8px 24px 24px 58px', background: 'transparent' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Subtasks
-                    </span>
-                    {subtasks.length > 0 && (
-                      <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                        {subtasks.filter(subtask => subtask.completed).length} of {subtasks.length} complete
-                      </span>
-                    )}
-                  </div>
+                {/* Tabs */}
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', gap: '24px' }}>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('subtasks')}
+                    style={{
+                      background: 'none', border: 'none', padding: '0 0 8px 0', fontSize: '12px', fontWeight: '600',
+                      color: activeTab === 'subtasks' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                      borderBottom: activeTab === 'subtasks' ? '2px solid var(--accent-primary)' : '2px solid transparent',
+                      cursor: 'pointer', transition: 'all 0.2s', textTransform: 'uppercase', letterSpacing: '0.04em',
+                      marginBottom: '-1px'
+                    }}
+                  >
+                    Subtasks {subtasks.length > 0 && <span style={{ color: 'var(--text-tertiary)', marginLeft: '4px', fontWeight: 'normal' }}>({subtasks.filter(s => s.completed).length}/{subtasks.length})</span>}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('notes')}
+                    style={{
+                      background: 'none', border: 'none', padding: '0 0 8px 0', fontSize: '12px', fontWeight: '600',
+                      color: activeTab === 'notes' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                      borderBottom: activeTab === 'notes' ? '2px solid var(--accent-primary)' : '2px solid transparent',
+                      cursor: 'pointer', transition: 'all 0.2s', textTransform: 'uppercase', letterSpacing: '0.04em',
+                      display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '-1px'
+                    }}
+                  >
+                    Notes {item.description && <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-primary)' }} />}
+                  </button>
+                </div>
+
+                {activeTab === 'subtasks' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
 
                   {subtasks.length > 0 && (
                     <div style={{ border: '1px solid var(--border-subtle)', borderRadius: '8px', overflow: 'hidden' }}>
                       {subtasks.map((subtask, subtaskIdx) => (
                         <div
                           key={subtask.id}
+                          onClick={() => toggleSubtask(item.id, subtask.id)}
+                          onMouseEnter={() => setHoveredSubtaskId(subtask.id)}
+                          onMouseLeave={() => setHoveredSubtaskId(null)}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
                             gap: '10px',
                             padding: '10px 12px',
                             borderBottom: subtaskIdx < subtasks.length - 1 ? '1px solid var(--border-subtle)' : 'none',
-                            background: 'var(--bg-surface)',
+                            background: hoveredSubtaskId === subtask.id ? 'var(--bg-surface-hover)' : 'var(--bg-surface)',
+                            cursor: 'pointer',
+                            transition: 'background 0.2s',
                           }}
                         >
                           <button
                             type="button"
-                            onClick={() => toggleSubtask(item.id, subtask.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSubtask(item.id, subtask.id);
+                            }}
                             style={{
                               width: '16px', height: '16px', borderRadius: '4px', flexShrink: 0,
                               border: `1px solid ${subtask.completed ? 'var(--accent-primary)' : 'var(--border-strong)'}`,
@@ -338,26 +380,75 @@ export default function TodoItemList({ items, onChange }: Props) {
                           >
                             {subtask.completed && <LuCheck size={12} color="var(--accent-primary-text)" strokeWidth={3} />}
                           </button>
-                          <span
-                            style={{
-                              flex: 1,
-                              minWidth: 0,
-                              fontSize: '13px',
-                              color: subtask.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
-                              textDecoration: subtask.completed ? 'line-through' : 'none',
-                            }}
-                          >
-                            {subtask.text}
-                          </span>
+                          
+                          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {editingSubtaskId === subtask.id ? (
+                              <input
+                                value={subtask.text}
+                                onChange={e => updateSubtask(item.id, subtask.id, e.target.value)}
+                                onBlur={() => setEditingSubtaskId(null)}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') setEditingSubtaskId(null);
+                                }}
+                                onClick={e => e.stopPropagation()}
+                                autoFocus
+                                style={{
+                                  background: 'transparent',
+                                  border: 'none',
+                                  borderBottom: '1px solid var(--text-primary)',
+                                  color: 'var(--text-primary)',
+                                  fontSize: '13px',
+                                  outline: 'none',
+                                  width: '100%',
+                                  padding: '2px 0'
+                                }}
+                              />
+                            ) : (
+                              <>
+                                <span
+                                  style={{
+                                    fontSize: '13px',
+                                    color: subtask.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                                    textDecoration: subtask.completed ? 'line-through' : 'none',
+                                    transition: 'all 0.2s',
+                                  }}
+                                >
+                                  {subtask.text}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingSubtaskId(subtask.id);
+                                  }}
+                                  style={{
+                                    background: 'transparent', border: 'none', cursor: 'pointer',
+                                    padding: '4px', display: 'flex', alignItems: 'center',
+                                    color: 'var(--text-tertiary)', opacity: hoveredSubtaskId === subtask.id ? 0.7 : 0,
+                                    transition: 'opacity 0.2s'
+                                  }}
+                                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; }}
+                                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-tertiary)'; }}
+                                >
+                                  <LuPencil size={12} />
+                                </button>
+                              </>
+                            )}
+                          </div>
+
                           <button
                             type="button"
-                            onClick={() => removeSubtask(item.id, subtask.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              removeSubtask(item.id, subtask.id);
+                            }}
                             style={{
                               padding: '4px', border: 'none', background: 'transparent', cursor: 'pointer',
-                              color: 'var(--text-tertiary)', display: 'flex', borderRadius: '4px',
+                              color: hoveredSubtaskId === subtask.id ? 'var(--text-tertiary)' : 'transparent', display: 'flex', borderRadius: '4px',
+                              transition: 'color 0.2s'
                             }}
                             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)'; }}
-                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--text-tertiary)'; }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = hoveredSubtaskId === subtask.id ? 'var(--text-tertiary)' : 'transparent'; }}
                           >
                             <LuTrash2 size={13} />
                           </button>
@@ -399,46 +490,41 @@ export default function TodoItemList({ items, onChange }: Props) {
                     </button>
                   </div>
                 </div>
+                )}
 
-                <div style={{ position: 'relative' }}>
-                  {editingDescId === item.id ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {activeTab === 'notes' && (
+                  <div style={{ padding: '0 4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '12px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setEditingDescId(editingDescId === item.id ? null : item.id)}
+                        className="luxury-button-secondary"
+                        style={{ padding: '4px 12px', fontSize: '12px' }}
+                      >
+                        {editingDescId === item.id ? 'Done' : item.description ? 'Edit' : 'Add Note'}
+                      </button>
+                    </div>
+
+                    {editingDescId === item.id ? (
                       <div style={{ borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-subtle)' }}>
-                        <MarkdownEditor 
-                          initialValue={item.description || ''} 
-                          onChange={val => updateItem(item.id, { description: val })} 
-                          minHeight={80} 
+                        <MarkdownEditor
+                          initialValue={item.description || ''}
+                          onChange={val => updateItem(item.id, { description: val })}
+                          minHeight={120}
                         />
                       </div>
-                      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '4px' }}>
-                        <button 
-                          onClick={() => setEditingDescId(null)}
-                          className="luxury-button-secondary"
-                          style={{ padding: '4px 12px', fontSize: '12px' }}
-                        >
-                          Done
-                        </button>
+                    ) : item.description ? (
+                      <div style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                        <MarkdownRenderer content={item.description} />
                       </div>
-                    </div>
-                  ) : (
-                    <div 
-                      onClick={() => setEditingDescId(item.id)} 
-                      style={{ cursor: 'pointer', opacity: 0.8, transition: 'opacity 0.2s' }}
-                      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '1'; }}
-                      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '0.8'; }}
-                    >
-                      {item.description ? (
-                         <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                           <MarkdownRenderer content={item.description} />
-                         </div>
-                      ) : (
-                         <span style={{ color: 'var(--text-tertiary)', fontSize: '13px', borderBottom: '1px dashed var(--border-strong)' }}>
-                           + Add notes...
-                         </span>
-                      )}
-                    </div>
-                  )}
-                </div>
+                    ) : (
+                      <div style={{ color: 'var(--text-tertiary)', fontSize: '13px', lineHeight: 1.5 }}>
+                        No notes yet. Click "Add Note" to write something.
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </div>
             </div>
           )}
@@ -488,6 +574,8 @@ export default function TodoItemList({ items, onChange }: Props) {
           Add Task <LuPlus size={16} />
         </button>
       </div>
+
+
     </div>
   );
 }
