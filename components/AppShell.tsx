@@ -7,18 +7,14 @@ import type { User } from '@/lib/types';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
-  const [ready, setReady] = useState(false);
+  const [user] = useState<User | null>(() => getUser());
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    const u = getUser();
-    if (!u) { router.replace('/login'); return; }
-    setUser(u);
-    setReady(true);
-  }, [router]);
+    if (!user) router.replace('/login');
+  }, [router, user]);
 
-  if (!ready || !user) {
+  if (!user) {
     return (
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'center',

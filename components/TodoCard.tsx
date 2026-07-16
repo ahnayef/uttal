@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import type { Todo } from '@/lib/types';
-import { getProgress, getDeadlineStatus, formatDeadline } from '@/lib/utils';
+import { getProgress, getCompletedItemCount } from '@/lib/utils';
 import { LuGlobe, LuLock, LuUsers, LuTrash2, LuRotateCcw } from 'react-icons/lu';
 
 const VIS_ICON = { 
@@ -21,8 +21,9 @@ interface Props {
 
 export default function TodoCard({ todo, onDelete, onRestore, onHardDelete, inTrash = false }: Props) {
   const [hovered, setHovered] = useState(false);
+  const [renderedAt] = useState(() => Date.now());
   const progress = getProgress(todo.items);
-  const done     = todo.items.filter(i => i.completed).length;
+  const done     = getCompletedItemCount(todo.items);
   const complete = progress === 100 && todo.items.length > 0;
 
   const cardContent = (
@@ -159,7 +160,7 @@ export default function TodoCard({ todo, onDelete, onRestore, onHardDelete, inTr
         <span style={{ fontSize: '11px', color: 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           {inTrash && todo.deletedAt ? (
             <span style={{ color: '#f59e0b', fontWeight: '500' }}>
-              {Math.max(1, 30 - Math.floor((Date.now() - new Date(todo.deletedAt).getTime()) / (24 * 60 * 60 * 1000)))}d left
+              {Math.max(1, 30 - Math.floor((renderedAt - new Date(todo.deletedAt).getTime()) / (24 * 60 * 60 * 1000)))}d left
             </span>
           ) : (
             new Date(todo.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })

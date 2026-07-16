@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { getTodos, getUser, deleteTodo } from '@/lib/store';
 import type { Todo, User } from '@/lib/types';
 import TodoCard from '@/components/TodoCard';
-import { getProgress, getDeadlineStatus } from '@/lib/utils';
+import { getProgress, getDeadlineStatus, isItemComplete } from '@/lib/utils';
 import { LuPlus, LuLayoutList, LuCheck, LuClock } from 'react-icons/lu';
 
 export default function DashboardPage() {
@@ -26,7 +26,7 @@ export default function DashboardPage() {
   // Stats
   const total = todos.length;
   const completed = todos.filter(t => t.items.length > 0 && getProgress(t.items) === 100).length;
-  const overdue = todos.filter(t => t.items.some(i => !i.completed && i.deadline && getDeadlineStatus(i.deadline) === 'overdue')).length;
+  const overdue = todos.filter(t => t.items.some(i => !isItemComplete(i) && i.deadline && getDeadlineStatus(i.deadline) === 'overdue')).length;
 
   return (
     <div className="fade-in dashboard-page" style={{ paddingBottom: '80px', maxWidth: '1000px', margin: '0 auto' }}>

@@ -8,7 +8,7 @@ import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import ShareModal from '@/components/ShareModal';
 import { LuShare, LuTrash2, LuCheck, LuAlignLeft } from 'react-icons/lu';
-import { generateShortId } from '@/lib/utils';
+import { generateShortId, getCompletedItemCount, getProgress } from '@/lib/utils';
 
 export default function TodoDetailPage() {
   const params = useParams();
@@ -99,6 +99,9 @@ export default function TodoDetailPage() {
     }
   };
 
+  const completedTasks = getCompletedItemCount(todo.items);
+  const progress = getProgress(todo.items);
+
   return (
     <div className="fade-in dashboard-page" style={{ paddingBottom: '80px', maxWidth: '800px', margin: '0 auto' }}>
       {/* Header block */}
@@ -164,13 +167,13 @@ export default function TodoDetailPage() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
             <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-secondary)' }}>Progress</span>
             <span style={{ fontSize: '12px', fontWeight: '500', color: 'var(--text-primary)' }}>
-              {todo.items.filter(it => it.completed).length} of {todo.items.length} tasks ({Math.round((todo.items.filter(it => it.completed).length / todo.items.length) * 100)}%)
+              {completedTasks} of {todo.items.length} tasks ({progress}%)
             </span>
           </div>
           <div style={{ width: '100%', height: '4px', background: 'var(--border-subtle)', borderRadius: '2px', overflow: 'hidden' }}>
             <div 
               style={{ 
-                width: `${Math.round((todo.items.filter(it => it.completed).length / todo.items.length) * 100)}%`, 
+                width: `${progress}%`, 
                 height: '100%', 
                 background: 'var(--text-primary)', 
                 transition: 'width 0.4s cubic-bezier(0.16, 1, 0.3, 1)' 

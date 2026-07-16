@@ -19,7 +19,22 @@ export function generateShortId(length = 10): string {
 
 export function getProgress(items: TodoItem[]): number {
   if (items.length === 0) return 0;
-  return Math.round((items.filter(i => i.completed).length / items.length) * 100);
+  const total = items.reduce((sum, item) => sum + getItemProgress(item), 0);
+  return Math.round(total / items.length);
+}
+
+export function getItemProgress(item: TodoItem): number {
+  const subtasks = item.subtasks ?? [];
+  if (subtasks.length === 0) return item.completed ? 100 : 0;
+  return Math.round((subtasks.filter(subtask => subtask.completed).length / subtasks.length) * 100);
+}
+
+export function isItemComplete(item: TodoItem): boolean {
+  return getItemProgress(item) === 100;
+}
+
+export function getCompletedItemCount(items: TodoItem[]): number {
+  return items.filter(isItemComplete).length;
 }
 
 // ── Deadline ──────────────────────────────────────────────────────────────────

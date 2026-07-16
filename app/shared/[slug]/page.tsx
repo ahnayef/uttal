@@ -7,6 +7,7 @@ import MarkdownRenderer from '@/components/MarkdownRenderer';
 import { LuCheck, LuLock, LuGlobe, LuUsers } from 'react-icons/lu';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { getTodoByShareSlug } from '@/lib/store';
+import { getItemProgress } from '@/lib/utils';
 
 function SharedTodoContent() {
   const params = useParams<{ slug: string }>();
@@ -76,29 +77,66 @@ function SharedTodoContent() {
 
           {todo.items.length > 0 && (
             <div className="luxury-card" style={{ padding: 0, overflow: 'hidden' }}>
-              {todo.items.map((item, idx) => (
-                <div key={item.id} style={{
-                  display: 'flex', alignItems: 'center', gap: '16px',
-                  padding: '16px 24px',
-                  borderBottom: idx < todo.items.length - 1 ? '1px solid var(--border-subtle)' : 'none',
-                }}>
-                  <div style={{
-                    width: '18px', height: '18px', borderRadius: '4px', flexShrink: 0,
-                    border: `1px solid ${item.completed ? 'var(--accent-primary)' : 'var(--border-strong)'}`,
-                    background: item.completed ? 'var(--accent-primary)' : 'transparent',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+              {todo.items.map((item, idx) => {
+                const subtasks = item.subtasks ?? [];
+                const progress = getItemProgress(item);
+
+                return (
+                  <div key={item.id} style={{
+                    padding: '16px 24px',
+                    borderBottom: idx < todo.items.length - 1 ? '1px solid var(--border-subtle)' : 'none',
                   }}>
-                    {item.completed && <LuCheck size={14} color="var(--accent-primary-text)" strokeWidth={3} />}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <div style={{
+                        width: '18px', height: '18px', borderRadius: '4px', flexShrink: 0,
+                        border: `1px solid ${progress === 100 ? 'var(--accent-primary)' : 'var(--border-strong)'}`,
+                        background: progress === 100 ? 'var(--accent-primary)' : 'transparent',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {progress === 100 && <LuCheck size={14} color="var(--accent-primary-text)" strokeWidth={3} />}
+                      </div>
+                      <span style={{
+                        flex: 1, fontSize: '14px',
+                        color: progress === 100 ? 'var(--text-secondary)' : 'var(--text-primary)',
+                        textDecoration: progress === 100 ? 'line-through' : 'none',
+                      }}>
+                        {item.text}
+                      </span>
+                      {subtasks.length > 0 && (
+                        <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
+                          {subtasks.filter(subtask => subtask.completed).length}/{subtasks.length}
+                        </span>
+                      )}
+                    </div>
+
+                    {subtasks.length > 0 && (
+                      <div style={{ marginTop: '12px', marginLeft: '34px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ height: '3px', background: 'var(--border-subtle)', borderRadius: '2px', overflow: 'hidden' }}>
+                          <div style={{ width: `${progress}%`, height: '100%', background: progress === 100 ? 'var(--accent-primary)' : 'var(--text-secondary)' }} />
+                        </div>
+                        {subtasks.map(subtask => (
+                          <div key={subtask.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px' }}>
+                            <div style={{
+                              width: '14px', height: '14px', borderRadius: '4px', flexShrink: 0,
+                              border: `1px solid ${subtask.completed ? 'var(--accent-primary)' : 'var(--border-strong)'}`,
+                              background: subtask.completed ? 'var(--accent-primary)' : 'transparent',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              {subtask.completed && <LuCheck size={10} color="var(--accent-primary-text)" strokeWidth={3} />}
+                            </div>
+                            <span style={{
+                              color: subtask.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
+                              textDecoration: subtask.completed ? 'line-through' : 'none',
+                            }}>
+                              {subtask.text}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <span style={{
-                    flex: 1, fontSize: '14px',
-                    color: item.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
-                    textDecoration: item.completed ? 'line-through' : 'none',
-                  }}>
-                    {item.text}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

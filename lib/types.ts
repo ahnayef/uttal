@@ -13,6 +13,14 @@ export interface TodoItem {
   description?: string;
   deadline?: string | null;
   completed: boolean;
+  subtasks?: TodoSubtask[];
+  createdAt: string;
+}
+
+export interface TodoSubtask {
+  id: string;
+  text: string;
+  completed: boolean;
   createdAt: string;
 }
 

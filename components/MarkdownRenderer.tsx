@@ -5,21 +5,29 @@ export default function MarkdownRenderer({ content }: { content: string }) {
   const [html, setHtml] = useState('');
 
   useEffect(() => {
-    if (!content) { setHtml(''); return; }
+    if (!content) return;
+    let ignore = false;
+
     import('marked').then(({ marked }) => {
       const result = marked.parse(content, { breaks: true });
       if (typeof result === 'string') {
-        setHtml(result);
+        if (!ignore) setHtml(result);
       } else {
-        (result as Promise<string>).then(setHtml);
+        (result as Promise<string>).then(parsed => {
+          if (!ignore) setHtml(parsed);
+        });
       }
     });
+
+    return () => {
+      ignore = true;
+    };
   }, [content]);
 
   return (
     <div
       className="markdown-content"
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: content ? html : '' }}
     />
   );
 }
