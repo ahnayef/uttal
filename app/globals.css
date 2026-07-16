@@ -6,14 +6,14 @@
 
 :root {
   /* LIGHT MODE (Pristine Soft White) */
-  --bg-main: #f8f9fa;
-  --bg-surface: rgba(255, 255, 255, 0.6);
-  --bg-surface-hover: rgba(0, 0, 0, 0.03);
-  --bg-surface-elevated: rgba(255, 255, 255, 0.8);
-  --bg-overlay: rgba(255, 255, 255, 0.7);
+  --bg-main: #edf0f4;
+  --bg-surface: rgba(255, 255, 255, 0.75);
+  --bg-surface-hover: rgba(0, 0, 0, 0.04);
+  --bg-surface-elevated: rgba(255, 255, 255, 0.95);
+  --bg-overlay: rgba(255, 255, 255, 0.8);
   
-  --border-subtle: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.16);
+  --border-subtle: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.18);
   
   --text-primary: #111827;
   --text-secondary: #4b5563;
