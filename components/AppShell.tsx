@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { getUser } from '@/lib/store';
 import Sidebar from '@/components/Sidebar';
 import type { User } from '@/lib/types';
+import { Logo } from '@/components/Icons';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -20,12 +21,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         height: '100vh', background: 'var(--bg-main)',
       }}>
-        <div style={{
-          width: '24px', height: '24px',
-          border: '2px solid var(--border-subtle)',
-          borderTopColor: 'var(--accent-primary)',
-          borderRadius: '50%',
-        }} className="spinner" />
+        <div className="animate-pulse" style={{ color: 'var(--text-primary)' }}>
+          <Logo width={48} height={48} />
+        </div>
       </div>
     );
   }

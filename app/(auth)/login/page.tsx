@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FaGoogle } from 'react-icons/fa';
 import { createClient } from '@/utils/supabase/client';
+import { Logo } from '@/components/Icons';
 
 const supabase = createClient();
 
@@ -39,8 +40,10 @@ export default function LoginPage() {
 
   if (checkingSession) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        Loading...
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-main)' }}>
+        <div className="animate-pulse" style={{ color: 'var(--text-primary)' }}>
+          <Logo width={48} height={48} />
+        </div>
       </div>
     );
   }
