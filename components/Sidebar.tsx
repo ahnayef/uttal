@@ -8,15 +8,16 @@ import { getInitials } from '@/lib/utils';
 import { LuLayoutDashboard, LuLayoutList, LuPlus, LuUser, LuSun, LuMoon, LuTrash2, LuLogOut } from 'react-icons/lu';
 import { useTheme } from '@/components/ThemeProvider';
 import { createClient } from '@/utils/supabase/client';
+import { Logo } from './Icons';
 
 const supabase = createClient();
 
 const NAV = [
-  { label: 'Overview', href: '/dashboard', exact: true,  icon: <LuLayoutDashboard size={18} /> },
-  { label: 'All Todos', href: '/todos', exact: true,     icon: <LuLayoutList size={18} /> },
+  { label: 'Overview', href: '/dashboard', exact: true, icon: <LuLayoutDashboard size={18} /> },
+  { label: 'All Todos', href: '/todos', exact: true, icon: <LuLayoutList size={18} /> },
   { label: 'New Todo', href: '/todos/new', exact: false, icon: <LuPlus size={18} /> },
-  { label: 'Trash',     href: '/todos/trash', exact: true, icon: <LuTrash2 size={18} /> },
-  { label: 'Profile',  href: '/dashboard/profile', exact: false, icon: <LuUser size={18} /> },
+  { label: 'Trash', href: '/todos/trash', exact: true, icon: <LuTrash2 size={18} /> },
+  { label: 'Profile', href: '/dashboard/profile', exact: false, icon: <LuUser size={18} /> },
 ];
 
 export default function Sidebar({ user, open = false, onClose }: { user: User; open?: boolean; onClose?: () => void }) {
@@ -51,24 +52,16 @@ export default function Sidebar({ user, open = false, onClose }: { user: User; o
       <div style={{ padding: '36px 28px 24px' }}>
         <div className="dashboard-sidebar-close" style={{ display: 'none', justifyContent: 'flex-end', marginBottom: '16px' }}>
           <button type="button" onClick={onClose} className="luxury-button-secondary" style={{ padding: '8px 14px' }}>
-            Close
+            x
           </button>
         </div>
-        <Link href="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '28px', height: '28px',
-            background: 'var(--accent-primary)',
-            borderRadius: '6px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary-text)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 11l3 3L22 4"/>
-              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-            </svg>
-          </div>
-          <span style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-            uttal
+        <Link href="/dashboard" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <Logo
+            width={25}
+            height={25}
+          />
+          <span style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-primary)', letterSpacing: '0.04em', }}>
+            Uttal
           </span>
         </Link>
       </div>
@@ -116,9 +109,9 @@ export default function Sidebar({ user, open = false, onClose }: { user: User; o
 
       {/* Footer Area: Theme Switcher & User */}
       <div style={{ padding: '16px 20px 24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        
+
         {/* Theme Toggle */}
-        <button 
+        <button
           onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -140,7 +133,7 @@ export default function Sidebar({ user, open = false, onClose }: { user: User; o
         </button>
 
         {/* Logout */}
-        <button 
+        <button
           onClick={handleLogout}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
