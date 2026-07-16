@@ -163,13 +163,7 @@ export default function TodoItemList({ items, onChange }: Props) {
             </button>
 
             {/* Text */}
-            <div 
-              style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'text' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (!editingTitleId) setEditingTitleId(item.id);
-              }}
-            >
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
               {editingTitleId === item.id ? (
                 <input
                   value={item.text}
@@ -192,7 +186,11 @@ export default function TodoItemList({ items, onChange }: Props) {
               ) : (
                 <>
                   <span
-                    style={{ fontSize: '14px', color: progress === 100 ? 'var(--text-secondary)' : 'var(--text-primary)', textDecoration: progress === 100 ? 'line-through' : 'none', transition: 'all 0.2s' }}>
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingTitleId(item.id);
+                    }}
+                    style={{ fontSize: '14px', color: progress === 100 ? 'var(--text-secondary)' : 'var(--text-primary)', textDecoration: progress === 100 ? 'line-through' : 'none', transition: 'all 0.2s', cursor: 'text' }}>
                     {item.text}
                   </span>
                   <button
@@ -387,13 +385,7 @@ export default function TodoItemList({ items, onChange }: Props) {
                             {subtask.completed && <LuCheck size={12} color="var(--accent-primary-text)" strokeWidth={3} />}
                           </button>
                           
-                          <div 
-                            style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px', cursor: 'text' }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (!editingSubtaskId) setEditingSubtaskId(subtask.id);
-                            }}
-                          >
+                          <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {editingSubtaskId === subtask.id ? (
                               <input
                                 value={subtask.text}
@@ -418,11 +410,16 @@ export default function TodoItemList({ items, onChange }: Props) {
                             ) : (
                               <>
                                 <span
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setEditingSubtaskId(subtask.id);
+                                  }}
                                   style={{
                                     fontSize: '13px',
                                     color: subtask.completed ? 'var(--text-secondary)' : 'var(--text-primary)',
                                     textDecoration: subtask.completed ? 'line-through' : 'none',
                                     transition: 'all 0.2s',
+                                    cursor: 'text'
                                   }}
                                 >
                                   {subtask.text}
