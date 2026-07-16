@@ -9,8 +9,47 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Uttal — Your intelligent todo',
-  description: 'Plan, track, and share your goals. Comfort has never built a legacy.',
+  title: "Uttal",
+  description: "Uttal - Comfort has never built a legacy.",
+  authors: [{ name: "AHNayef", url: "https://github.com/ahnayef" }],
+  keywords: [
+    "goals",
+    "task management",
+    "productivity",
+    "organization",
+    "tracking",
+    "planning",
+  ],
+  metadataBase: new URL("https://uttal.vercel.app"),
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Uttal",
+    startupImage: [
+      {
+        url: "meta.png",
+        media:
+          "(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2)",
+      },
+    ],
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    url: "https://uttal.vercel.app",
+    siteName: "Uttal",
+    images: [
+      {
+        url: "meta.png",
+        width: 177,
+        height: 112,
+        alt: "Meta Image",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
 };
 
 import { ThemeProvider } from '@/components/ThemeProvider';
