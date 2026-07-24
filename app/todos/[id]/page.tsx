@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getTodoById, saveTodo, deleteTodo, getUser } from '@/lib/store';
 import type { Todo, User } from '@/lib/types';
@@ -16,6 +16,7 @@ export default function TodoDetailPage() {
   
   const [todo, setTodo] = useState<Todo | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const saveTimerRef = useRef<number | null>(null);
   
   // Editing states
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -69,16 +70,39 @@ export default function TodoDetailPage() {
     return () => window.clearTimeout(timer);
   }, [draftDescription, isEditingDescription, todo]);
 
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) {
+        window.clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, []);
+
   if (!todo || !user) return null;
 
   const update = (updates: Partial<Todo>) => {
-    void (async () => {
-      const saved = await saveTodo({ ...todo, ...updates, updatedAt: new Date().toISOString() });
-      setTodo(saved);
-      if (typeof updates.description === 'string') {
-        setDraftDescription(updates.description);
-      }
-    })();
+    const nextTodo = {
+      ...todo,
+      ...updates,
+      shareSlug: updates.visibility && updates.visibility !== 'private' ? todo.shareSlug ?? generateShortId() : updates.shareSlug ?? todo.shareSlug,
+      updatedAt: new Date().toISOString(),
+    };
+
+    setTodo(nextTodo);
+    if (typeof updates.description === 'string') {
+      setDraftDescription(updates.description);
+    }
+
+    if (saveTimerRef.current) {
+      window.clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = window.setTimeout(() => {
+      void (async () => {
+        const saved = await saveTodo(nextTodo);
+        setTodo(saved);
+      })();
+    }, 500);
   };
 
   const handleTitleSubmit = () => {

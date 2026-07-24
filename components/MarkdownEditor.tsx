@@ -1,17 +1,19 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type ReactNode } from 'react';
 import MarkdownRenderer from './MarkdownRenderer';
 import { LuBold, LuItalic, LuHeading2, LuList, LuCode, LuQuote } from 'react-icons/lu';
 
 interface Props { initialValue: string; onChange: (val: string) => void; minHeight?: number; }
 
-const TOOLBAR = [
-  { icon: <LuBold size={14} />, title: 'Bold',   insert: '**bold**' },
-  { icon: <LuItalic size={14} />, title: 'Italic', insert: '*italic*' },
-  { icon: <LuHeading2 size={14} />, title: 'Heading', insert: '\n## '  },
-  { icon: <LuList size={14} />, title: 'List',   insert: '\n- '    },
-  { icon: <LuCode size={14} />, title: 'Code',   insert: '`code`'  },
-  { icon: <LuQuote size={14} />, title: 'Quote',  insert: '\n> '    },
+type MarkdownAction = 'bold' | 'italic' | 'heading' | 'list' | 'code' | 'quote';
+
+const TOOLBAR: Array<{ icon: ReactNode; title: string; action: MarkdownAction }> = [
+  { icon: <LuBold size={14} />, title: 'Bold', action: 'bold' },
+  { icon: <LuItalic size={14} />, title: 'Italic', action: 'italic' },
+  { icon: <LuHeading2 size={14} />, title: 'Heading', action: 'heading' },
+  { icon: <LuList size={14} />, title: 'List', action: 'list' },
+  { icon: <LuCode size={14} />, title: 'Code', action: 'code' },
+  { icon: <LuQuote size={14} />, title: 'Quote', action: 'quote' },
 ];
 
 export default function MarkdownEditor({ initialValue, onChange, minHeight = 200 }: Props) {
@@ -41,10 +43,59 @@ export default function MarkdownEditor({ initialValue, onChange, minHeight = 200
   };
 
   const flushChange = (nextValue: string) => {
+    setDraftValue(nextValue);
+
     if (updateTimerRef.current) {
       window.clearTimeout(updateTimerRef.current);
+      updateTimerRef.current = null;
     }
+
     onChange(nextValue);
+  };
+
+  const applyMarkdownAction = (action: MarkdownAction) => {
+    const textarea = textareaRef.current;
+    const start = textarea?.selectionStart ?? draftValue.length;
+    const end = textarea?.selectionEnd ?? draftValue.length;
+    const selected = draftValue.slice(start, end);
+
+    let replacement = '';
+    let cursorStart = start;
+    let cursorEnd = start;
+
+    if (action === 'bold') {
+      replacement = `**${selected || 'bold'}**`;
+      cursorStart = start + 2;
+      cursorEnd = cursorStart + (selected || 'bold').length;
+    } else if (action === 'italic') {
+      replacement = `*${selected || 'italic'}*`;
+      cursorStart = start + 1;
+      cursorEnd = cursorStart + (selected || 'italic').length;
+    } else if (action === 'code') {
+      replacement = `\`${selected || 'code'}\``;
+      cursorStart = start + 1;
+      cursorEnd = cursorStart + (selected || 'code').length;
+    } else if (action === 'heading') {
+      replacement = `${start > 0 && draftValue[start - 1] !== '\n' ? '\n' : ''}## ${selected}`;
+      cursorStart = start + replacement.length;
+      cursorEnd = cursorStart;
+    } else if (action === 'list') {
+      replacement = `${start > 0 && draftValue[start - 1] !== '\n' ? '\n' : ''}- ${selected}`;
+      cursorStart = start + replacement.length;
+      cursorEnd = cursorStart;
+    } else {
+      replacement = `${start > 0 && draftValue[start - 1] !== '\n' ? '\n' : ''}> ${selected}`;
+      cursorStart = start + replacement.length;
+      cursorEnd = cursorStart;
+    }
+
+    const nextValue = `${draftValue.slice(0, start)}${replacement}${draftValue.slice(end)}`;
+    flushChange(nextValue);
+
+    window.requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.setSelectionRange(cursorStart, cursorEnd);
+    });
   };
 
   useEffect(() => {
@@ -88,7 +139,8 @@ export default function MarkdownEditor({ initialValue, onChange, minHeight = 200
         {TOOLBAR.map((btn, idx) => (
           <button
             key={idx} type="button" title={btn.title}
-            onClick={() => flushChange(draftValue + btn.insert)}
+            onMouseDown={e => e.preventDefault()}
+            onClick={() => applyMarkdownAction(btn.action)}
             style={{
               width: '28px', height: '28px', borderRadius: '6px',
               border: 'none', background: 'transparent',
@@ -115,6 +167,20 @@ export default function MarkdownEditor({ initialValue, onChange, minHeight = 200
           ref={textareaRef}
           value={draftValue}
           onChange={e => queueChange(e.target.value)}
+          onKeyDown={e => {
+            if (!e.ctrlKey && !e.metaKey) return;
+            const key = e.key.toLowerCase();
+            if (key === 'b') {
+              e.preventDefault();
+              applyMarkdownAction('bold');
+            } else if (key === 'i') {
+              e.preventDefault();
+              applyMarkdownAction('italic');
+            } else if (key === 'e') {
+              e.preventDefault();
+              applyMarkdownAction('code');
+            }
+          }}
           placeholder="Add a description... (Markdown supported)"
           style={{
             width: '100%', minHeight: `${minHeight}px`,

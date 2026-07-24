@@ -23,6 +23,13 @@ for select
 to anon
 using (visibility in ('public', 'shared') and share_slug is not null);
 
+drop policy if exists "todos_select_public_authenticated" on public.todos;
+create policy "todos_select_public_authenticated"
+on public.todos
+for select
+to authenticated
+using (visibility in ('public', 'shared') and share_slug is not null);
+
 drop policy if exists "todos_select_own" on public.todos;
 create policy "todos_select_own"
 on public.todos

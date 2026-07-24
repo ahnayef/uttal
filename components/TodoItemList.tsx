@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import type { TodoItem } from '@/lib/types';
 import { generateId, getItemProgress, isItemComplete } from '@/lib/utils';
-import { LuTrash2, LuCheck, LuChevronDown, LuChevronUp, LuCalendar, LuPlus, LuPencil, LuFileText, LuX } from 'react-icons/lu';
+import { LuTrash2, LuCheck, LuChevronDown, LuChevronUp, LuCalendar, LuPlus, LuPencil } from 'react-icons/lu';
 import MarkdownEditor from '@/components/MarkdownEditor';
 import MarkdownRenderer from '@/components/MarkdownRenderer';
 import LiveCountdown from '@/components/LiveCountdown';
@@ -18,8 +18,10 @@ export default function TodoItemList({ items, onChange }: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editingDescId, setEditingDescId]   = useState<string | null>(null);
   const [editingTitleId, setEditingTitleId] = useState<string | null>(null);
+  const [editingTitleDraft, setEditingTitleDraft] = useState('');
   const [activeTab, setActiveTab] = useState<'subtasks' | 'notes'>('subtasks');
   const [editingSubtaskId, setEditingSubtaskId] = useState<string | null>(null);
+  const [editingSubtaskDraft, setEditingSubtaskDraft] = useState('');
   const [hoveredSubtaskId, setHoveredSubtaskId] = useState<string | null>(null);
   const [newSubtaskText, setNewSubtaskText] = useState<Record<string, string>>({});
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -98,8 +100,44 @@ export default function TodoItemList({ items, onChange }: Props) {
     }));
   };
 
+  const startEditingTitle = (item: TodoItem) => {
+    setEditingTitleId(item.id);
+    setEditingTitleDraft(item.text);
+  };
+
+  const cancelTitleEdit = () => {
+    setEditingTitleId(null);
+    setEditingTitleDraft('');
+  };
+
+  const commitTitleEdit = (item: TodoItem) => {
+    const nextText = editingTitleDraft.trim();
+    if (nextText && nextText !== item.text) {
+      updateItem(item.id, { text: nextText });
+    }
+    cancelTitleEdit();
+  };
+
+  const startEditingSubtask = (subtask: { id: string; text: string }) => {
+    setEditingSubtaskId(subtask.id);
+    setEditingSubtaskDraft(subtask.text);
+  };
+
+  const cancelSubtaskEdit = () => {
+    setEditingSubtaskId(null);
+    setEditingSubtaskDraft('');
+  };
+
+  const commitSubtaskEdit = (itemId: string, subtaskId: string, currentText: string) => {
+    const nextText = editingSubtaskDraft.trim();
+    if (nextText && nextText !== currentText) {
+      updateSubtask(itemId, subtaskId, nextText);
+    }
+    cancelSubtaskEdit();
+  };
+
   const handleRowClick = (id: string, e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('button')) return;
+    if ((e.target as HTMLElement).closest('button, input, textarea')) return;
 
     if (clickTimeoutRef.current) {
       clearTimeout(clickTimeoutRef.current);
@@ -166,10 +204,13 @@ export default function TodoItemList({ items, onChange }: Props) {
             <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
               {editingTitleId === item.id ? (
                 <input
-                  value={item.text}
-                  onChange={e => updateItem(item.id, { text: e.target.value })}
-                  onBlur={() => setEditingTitleId(null)}
-                  onKeyDown={e => e.key === 'Enter' && setEditingTitleId(null)}
+                  value={editingTitleDraft}
+                  onChange={e => setEditingTitleDraft(e.target.value)}
+                  onBlur={() => commitTitleEdit(item)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') commitTitleEdit(item);
+                    if (e.key === 'Escape') cancelTitleEdit();
+                  }}
                   onClick={e => e.stopPropagation()}
                   autoFocus
                   style={{
@@ -188,7 +229,7 @@ export default function TodoItemList({ items, onChange }: Props) {
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
-                      setEditingTitleId(item.id);
+                      startEditingTitle(item);
                     }}
                     style={{ fontSize: '14px', color: progress === 100 ? 'var(--text-secondary)' : 'var(--text-primary)', textDecoration: progress === 100 ? 'line-through' : 'none', transition: 'all 0.2s', cursor: 'text' }}>
                     {item.text}
@@ -197,7 +238,7 @@ export default function TodoItemList({ items, onChange }: Props) {
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
-                      setEditingTitleId(item.id);
+                      startEditingTitle(item);
                     }}
                     style={{
                       background: 'transparent', border: 'none', cursor: 'pointer',
@@ -388,11 +429,12 @@ export default function TodoItemList({ items, onChange }: Props) {
                           <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                             {editingSubtaskId === subtask.id ? (
                               <input
-                                value={subtask.text}
-                                onChange={e => updateSubtask(item.id, subtask.id, e.target.value)}
-                                onBlur={() => setEditingSubtaskId(null)}
+                                value={editingSubtaskDraft}
+                                onChange={e => setEditingSubtaskDraft(e.target.value)}
+                                onBlur={() => commitSubtaskEdit(item.id, subtask.id, subtask.text)}
                                 onKeyDown={e => {
-                                  if (e.key === 'Enter') setEditingSubtaskId(null);
+                                  if (e.key === 'Enter') commitSubtaskEdit(item.id, subtask.id, subtask.text);
+                                  if (e.key === 'Escape') cancelSubtaskEdit();
                                 }}
                                 onClick={e => e.stopPropagation()}
                                 autoFocus
@@ -412,7 +454,7 @@ export default function TodoItemList({ items, onChange }: Props) {
                                 <span
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setEditingSubtaskId(subtask.id);
+                                    startEditingSubtask(subtask);
                                   }}
                                   style={{
                                     fontSize: '13px',
@@ -428,7 +470,7 @@ export default function TodoItemList({ items, onChange }: Props) {
                                   type="button"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    setEditingSubtaskId(subtask.id);
+                                    startEditingSubtask(subtask);
                                   }}
                                   style={{
                                     background: 'transparent', border: 'none', cursor: 'pointer',
@@ -528,7 +570,7 @@ export default function TodoItemList({ items, onChange }: Props) {
                       </div>
                     ) : (
                       <div style={{ color: 'var(--text-tertiary)', fontSize: '13px', lineHeight: 1.5 }}>
-                        No notes yet. Click "Add Note" to write something.
+                        No notes yet. Click Add Note to write something.
                       </div>
                     )}
                   </div>
